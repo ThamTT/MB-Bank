@@ -1,0 +1,760 @@
+package cucumber.user_interface_t24vn;
+
+import cucumber.common.ActionCommon;
+import cucumber.singleton.BaseStringUtils;
+import cucumber.singleton.PageTitles;
+import net.serenitybdd.core.Serenity;
+import net.serenitybdd.screenplay.targets.Target;
+import org.openqa.selenium.By;
+
+import java.text.ParseException;
+import java.util.List;
+
+import static net.thucydides.core.webdriver.ThucydidesWebDriverSupport.getDriver;
+
+public class HomePageT24Form {
+
+    public HomePageT24Form() {
+    }
+
+    public static final String SUB_XPATH = "//*[text()='";
+    //header in T24 homepage
+    public static final Target COMMANDLINE_TEXTBOX = Target.the(" Command Line in T24")
+            .locatedBy("//*[@id='commandValue']");
+    public static final Target MATURITY_DATE_MD_DEAL_2 = Target.the("MATURITY_DATE_MD_DEAL_2")
+            .locatedBy("//*[@id='fieldName:MATURITY.DATE']");
+    public static final Target DISABLE_VALUE_DATE = Target.the("DISABLE_VALUE_DATE")
+            .locatedBy(" //*[@id='disabled_VALUE.DATE']");
+    public static final Target DATE_VALUE = Target.the(" DATE_VALUE")
+            .locatedBy("//*[@id='fieldName:DATE.VALUE']");
+    public static final Target MD_TERM = Target.the(" MD_TERM")
+            .locatedBy(" //*[@id='fieldName:MD.TERM']");
+
+
+    // Go button
+    public static final Target GO_BUTTON = Target.the("Go button")
+            .locatedBy("//a[@title='Go']");
+
+
+    // menu in T24 homepage
+    public static final Target RETAIL_USER_MENU_LINK = Target.the("Retail User Menu")
+            .locatedBy("//span[contains(text(),'Retail user menu')]");
+    public static final Target LOAI_GD = Target.the("Loai Giao Dich")
+            .locatedBy("//*[@id=\"fieldName:MB.LOAIGIAODICH\"]");
+    public static final By RETAIL_USER_MENU_TELLER_LINK = By.xpath("//span[contains(text(),'Retail user menu')]//following-sibling::ul//span[normalize-space(text())='Teller']");
+    public static final Target RETAIL_ADMIN_LINK = Target.the("Retail User Menu")
+            .locatedBy("//span[contains(text(),'Retail admin menu')]");
+
+    public static final Target CAM_MENU_LINK = Target.the("Cam menu")
+            .locatedBy("//span[contains(text(),'Cam menu')]");
+    public static final Target LAOS_MENU_LINK = Target.the("Laos menu")
+            .locatedBy("//span[contains(text(),'Laos Menu')]");
+    public static final Target LOANS_MENU_LINK = Target.the("Loans menu")
+            .locatedBy("//span[contains(text(),'Loans')]");
+    public static final Target COLLATERAL_MD = Target.the("Loans menu")
+            .locatedBy("((//ul[@style='display: block;'])[last()]/li[@class='clsHasKids']//span[contains(text(),'Collateral')])[1]");
+    public static final Target LIMITS = Target.the("Loans menu")
+            .locatedBy("((//ul[@style='display: block;'])[last()]/li[@class='clsHasKids']//span[contains(text(),'Limits')])[1]");
+    public static final Target LIMITS_MENU = Target.the("Loans menu")
+            .locatedBy("(//span[contains(text(),'Limit Menu')])[1]");
+    public static final Target LIMITS_UNSECURED = Target.the("Create Unsecured Limit")
+            .locatedBy("(//a[contains(text(),'Create Unsecured Limit')])[1]");
+    public static final Target XEM_STK = Target.the("Loans menu")
+            .locatedBy("(//*[contains(text(),'Xem STK MM/LD bi phong toa ')])[1]");
+    public static final Target CREDIT_CONTRACT = Target.the("Enquiries menu")
+            .locatedBy(" (//ul[@style='display: block;'])[last()]/li[@class='clsHasKids']/span[contains(text(), 'Create Credit Contract')]");
+    public static final Target MO_HOP_DONG = Target.the("Enquiries menu")
+            .locatedBy("(//*[contains(text(),'MO HOP DONG TIN DUNG')])[1]");
+    public static final Target AUTHOR_DELETE = Target.the("No han menu")
+            .locatedBy("(//*[contains(text(),'Authorise/Delete Guarantee Transaction')])[4]");
+    public static final Target DUYET_AUTHOR_DELETE = Target.the("No han menu")
+            .locatedBy("( //a[contains(text(),'Phe duyet giao dich MD ')])[2]");
+    public static final Target MESSAGE_SHOW = Target.the("No han menu")
+            .locatedBy("//*[@class='message']");
+    public static final Target CO_CODE = Target.the("Enquiries menu")
+            .locatedBy("//*[@id='value:1:1:1']");
+    public static final Target CUSTOMER_MD = Target.the("Enquiries menu")
+            .locatedBy("//*[@id='fieldName:CUSTOMER']");
+    public static final Target MATURITY_DATE_MD_DEAL = Target.the("Enquiries menu")
+            .locatedBy("//*[@id='fieldName:MATURITY.DATE");
+    public static final Target TERM_MD = Target.the("Enquiries menu")
+            .locatedBy("//*[@id='fieldName:MD.TERM']");
+    public static final Target Past_Dues_MENU_LINK = Target.the("Past Dues menu")
+            .locatedBy("(//li[@class='clsHasKids'][last()]//span[contains(text(), 'Past Dues')])[2]");
+    public static final Target THU_PHAT_MENU_LINK = Target.the("thu phat tra")
+            .locatedBy("//li[@class='clsHasKids'][last()]//*[contains(text(),'Thu phat cham tra lai')]//*[@alt=\"Thu phat cham tra lai\"]");
+    public static final Target THU_PHAT_MENU_LINK_A = Target.the("thu phat tra sub")
+            .locatedBy("//li[@class='clsHasKids'][last()]//*[contains(text(),'Thu phat cham tra lai')]//*[@alt=\"Thu phat cham tra lai\"]/following::a[1]");
+    public static final Target NEW_DEAL_THU_PHAT = Target.the("thu phat tra sub")
+            .locatedBy("//a[@title='New Deal']");
+    public static final Target DEBIT_ACCOUNT_CHARGE = Target.the("debit acconut")
+            .locatedBy("//*[@id=\"fieldName:DEBIT.ACCOUNT\"]");
+    public static final Target PD_CUSTOMER_CHARGE = Target.the("pd customer")
+            .locatedBy("//*[@id=\"fieldName:PD.CUSTOMER\"]");
+    public static final Target PDID_REF_1_CHARGE = Target.the("PDID_REF_1_CHARGE ")
+            .locatedBy("//*[@id=\"fieldName:PDID.REF:1\"]");
+    public static final Target SIGN_OFF = Target.the("PDID_REF_1_CHARGE ")
+            .locatedBy("//*[@title = 'Sign off']");
+    public static final Target DUYET_XOA = Target.the("Duyet xoa ")
+            .locatedBy(" //li[@class='clsHasKids'][last()]//*[contains(text(),'Duyet/Xoa thu phat cham tra lai ')]");
+
+    public static final Target SELLECT_OPTIONS_1 = Target.the("Drop down list").locatedBy("//select[@id='operand:1:1:1");
+
+    public static final Target TRUY_VAN_TAI_KHOAN_LINK = Target.the("Truy vấn tài khoản")
+            .locatedBy("//ul[@style='display: block;']//span[text()='Truy van tai khoan']");
+    public static final Target TRUY_VAN_TAI_KHOAN_SUBLINK = Target.the("Truy vấn tài khoản sub link")
+            .locatedBy("//ul[@style='display: block;']//a[text()='Truy van tai khoan ']");
+    public static final Target ACCOUNT_LINK = Target.the("tài khoản")
+            .locatedBy("//ul[@style='display: block;']//span[text()='Account']");
+
+    public static final Target ENQUIRIES_LINK = Target.the("Enquiries")
+            .locatedBy("//ul[@style='display: block;']//span[text()='Account']/..//span[text()='Enquiries']");
+    public static final Target QUERY_TRANSACTION_ACCOUNT_LINK = Target.the("Truy vấn giao dịch tài khoản link")
+            .locatedBy("//ul[@style='display: block;']//a[text()='Truy van giao dich tai khoan ']");
+
+    //CBS.ACC.MASTER.ENTRY
+    public static final Target ACCOUNT_TEXTBOX_ACC_MASTER = Target.the("ACCOUNT textbox")
+            .locatedBy("//input[@id='value:1:1:1']");
+
+    //DMT.STMT.ENT.BOOK
+    public static final Target BOOKING_DATE_TEXTBOX = Target.the("BOOKING.DATE textbox")
+            .located(By.id("value:1:1:1"));
+    public static final Target ACCOUNT_TEXTBOX = Target.the("ACCOUNT textbox")
+            .located(By.id("value:2:1:1"));
+    public static final Target FIND_BUTTON = Target.the("Find textbox")
+            .locatedBy("//a[@class='textbtn']");
+    public static final Target LASTPAGE_BUTTON = Target.the("LastPage button")
+            .locatedBy("//a[@title='Last Page']");
+    public static final Target FIRSTPAGE_BUTTON = Target.the("FirstPage button")
+            .locatedBy("//a[@title='First Page']");
+
+    //data table response
+    public static final Target RESPONSE_DATA = Target.the("Bảng thông tin datadisplay")
+            .locatedBy("//table[@id='datadisplay']");
+
+    public static final Target ENQUIRY_RESPONSE_DATA = Target.the("Data Response")
+            .locatedBy("//table[@id='enquiryResponseData']");
+
+    public static final Target FIRST_ROW_DATA_FILTER = Target.the("First row data filter")
+            .locatedBy("//table[@id='datadisplay']//tr[1]");
+
+    public static final Target ENQUIRY_HEADER = Target.the("Data Response")
+            .locatedBy("//td[@id='enqheader-msg']");
+
+    public static Target lastpagePaymentText(String amount) {
+        return Target.the("Last Payment text")
+                .locatedBy("(//td[contains(text(),'" + amount + "')])[last()]");
+    }
+
+    public static Target lastpageAmountText(String amount) {
+        return Target.the("Last page amount text")
+                .locatedBy("//td[contains(text(),'" + amount + "')]");
+    }
+
+    public static Target drillDownButton(String amount) {
+        return Target.the("Last Payment text")
+                .locatedBy("(//td[contains(text(),'" + amount + "')])[last()]/following-sibling::td//a");
+    }
+
+    public static final Target NEW_DEAL = Target.the(" New deal")
+            .locatedBy("//a[@title='New Deal']");
+    public static final Target COMMIT_THE_DEAL = Target.the(" Commit the deal")
+            .locatedBy("//a[@title='Commit the deal']");
+    public static final Target VALIDATE_THE_DEAL = Target.the(" Validate a deal")
+            .locatedBy("//a[@title='Validate a deal']");
+    public static final Target SELECTION_SCREEN = Target.the(" Selection Screen")
+            .locatedBy("//a[@title='Selection Screen']");
+    public static final Target RUN_SELECTION = Target.the(" Run Selection")
+            .locatedBy("//a[@title='Run Selection']");
+    public static final Target VERIFIES_A_DEAL = Target.the("Verifies a deal")
+            .locatedBy("//a[contains(@title,'Verifies a deal')]");
+    public static final Target SELECTION_CRITERIA = Target.the(" Selection Criteria")
+            .locatedBy("//a[@title='Selection Criteria']");
+    public static final Target EDIT_A_CONTRACT = Target.the(" Edit a contract")
+            .locatedBy("//a[@title='Edit a contract']");
+    public static final Target AUTHORISES_A_DEAL = Target.the(" Authorises a deal")
+            .locatedBy("//a[@title='Authorises a deal']");
+    public static final Target AUTHORISES = Target.the(" Authorises")
+            .locatedBy("//a[text()='Authorise']");
+    public static final Target DELETES_A_DEAL = Target.the(" Deletes a Deal")
+            .locatedBy("//a[@title='Deletes a Deal']");
+    public static final Target HOLD = Target.the(" Hold the deal")
+            .locatedBy("//a[@title='Place a contract on Hold']");
+    public static final Target FULLVIEW = Target.the(" FULLVIEW")
+            .locatedBy("//span[contains(text(),'FULLVIEW')]");
+    public static final Target MESSAGE = Target.the(" Message")
+            .locatedBy("//td[@class='message']");
+    public static final Target MESSAGE3 = Target.the(" Message3")
+            .locatedBy("//*[@id=\"messages\"]//tr[3]/td");
+
+    public static final Target AUTHEN_DUYET_MD = Target.the(" Message")
+            .locatedBy(" //*[contains(text(),'Authorise Guarantee Transaction')]");
+
+    public static final Target PREVIOUS_PAGE = Target.the("Previous page").locatedBy("//a[@title='Previous Page']");
+    public static final Target NEXT_PAGE = Target.the("Next page").locatedBy("//a[@title='Next Page']");
+    public static final Target LAST_PAGE = Target.the("Last page").locatedBy("//a[@title='Last Page']");
+    public static final Target HO_TRO_T24 = Target.the("HO TRO T24").locatedBy("//span[contains(text(),'HO TRO T24')]");
+    public static final Target XOA_CAT_LOCK = Target.the("Xoa/cat lock User T24").locatedBy("//ul[@style='display: block;']/li/a[contains(text(),'Xoa/cat lock User T24')]");
+    public static final Target XOA_LOCK_BAN_GHI = Target.the("Xoa lock ban ghi").locatedBy("//a[contains(text(),'Xoa lock ban ghi')]");
+    public static Target xoaLockBanGhiTheoId(String id) {
+        return Target.the("xoa lock ban ghi theo id").
+                locatedBy("(//*[contains(text(),'" + id + "')]/following::a[contains(text(),'Xoa lock ban ghi')])[1]");
+    }
+    public static final Target THU_PHAT_CHAM = Target.the("Xoa lock ban ghi").locatedBy("//span[contains(text(),'Thu phat cham tra lai 1')]");
+    public static final Target RECORD_ID = Target.the("record id").
+            locatedBy("//*[@id='selectiondisplay']//*[text()='RECORD.ID']/parent::span//parent::td/following-sibling::td//input[@type='text']");
+    public static final Target INPUTTER = Target.the("record id").
+            locatedBy("//*[@id='selectiondisplay']//*[text()='INPUTTER']/parent::span//parent::td/following-sibling::td//input[@type='text']");
+
+    public static final Target CAPTION_ERROR = Target.the(" Thông Báo Lỗi")
+            .locatedBy("//table[@id='errors']");
+    public static final Target MESSAGE_WRAP = Target.the(" Nội dung thông báo lỗi")
+            .locatedBy("//td[@class='messageWrap']");
+    public static final Target MESSAGE_WRAP_CONTENT = Target.the(" Thông báo lỗi")
+            .locatedBy("//td[@class='messageWrap']/span");
+    public static final Target ERROR_INPUT_MISSING = Target.the("Error Input Missing").
+            locatedBy("//*[@class='captionError' and text()='INPUT MISSING']");
+    public static final Target RECORD_STATUS = Target.the(" Record Status")
+            .locatedBy("//a[text()='Record Status']/parent::label/parent::td/following-sibling::td/span[contains(@class,'disabled_dealbox')]");
+    public static final Target TT_TEXT_XPATH = Target.the("Code trannsaction id")
+            .locatedBy("//span/following-sibling::input[contains(@name,'transactionId')]");
+    public static final Target VIEW_A_CONTRACT = Target.the("View a contact")
+            .locatedBy("//a[@title='View a contract']");
+    public static final Target PERFORM_AN_ACTION_ON_THE_CONTRACT = Target.the("Perform an action on the contract")
+            .locatedBy("//a[@title='Perform an action on the contract']");
+    public static final Target ACCEPT_OVERRIDES = Target.the("Accept Overrides")
+            .locatedBy("//*[@id='errorImg' and text()='Accept Overrides']");
+    public static final Target ERROR_BOX = Target.the(" Thông báo lỗi")
+            .locatedBy("//div[@id='error_box']");
+    public static final Target RETURN_TO_APPLICATION_SCREEN = Target.the("Return to application screen").locatedBy("//a[@title = 'Return to application screen']");
+    public static final Target TRANSACTION_ID = Target.the("Transaction ID")
+            .locatedBy("//*[@id='toolBar']//*[@id='transactionId']");
+    public static final Target SPAN_TRANSACTION_ID = Target.the("Span Transaction Id")
+            .locatedBy("//*[@id='toolBar']//span");
+    public static final Target PERFORM_A_CONTRACT = Target.the("Perform an action on the contract")
+            .locatedBy("//a[@title='Perform an action on the contract']");
+    public static final Target DROPDOWN_LIST = Target.the("Dropdown list").locatedBy("//a[@title='Dropdown List']");
+    public static final Target RESTR_TO_COMPS = Target.the("RESTR.TO.COMPS").locatedBy("//input[@id='fieldName:RESTR.TO.COMPS:1']");
+    public static final Target DROPDOWN_TABLE = Target.the("Dropdown table").locatedBy("//table[@id='dropDownTable:transactionId']");
+    public static final Target DROPDOWN_TR = Target.the("Dropdown table").locatedBy("//table[@id='dropDownTable:transactionId']//tr");
+    public static final Target CHARGE_AMOUNT = Target.the("Dropdown table").locatedBy("(//*[contains(@class, 'disabled_dealbox disabled_dealbox_MBCHARGEPSINT')])[5]");
+    public static final Target DATE_AMOUNT = Target.the("Dropdown table").locatedBy("//*[@id=\"fieldName:CHARGE.AMOUNT:1\"]");
+    public static final Target DATE_AMOUNT_CHARGE = Target.the("Dropdown table").locatedBy("//*[@id=\"enri_CHARGE.DATE\"]");
+    public static final Target DATE_AMOUNT_CHARGE_SEE = Target.the("Dropdown table").locatedBy("//*[@id=\"enri_CHARGE.DATE:1\"]");
+    public static final Target ID_SEARCH = Target.the("get @Id").locatedBy("//input[@value='@ID']/parent::td/following-sibling::td/input");
+
+    public static final Target ID_LD = Target.the("get text id LD").locatedBy("//*[@id=\"r1\"]/td[2]/a/b");
+
+    public static final Target getOperand(String key) {
+        return Target.the(key).locatedBy("//input[@value='" + key.toUpperCase() + "']/parent::td/following-sibling::td/select");
+    }
+
+    //ACCOUNT,TK.KIEUHOI.INSO.MAU.CU
+    public static final Target MATURITY_DATE = Target.the("Maturity date").locatedBy("//*[@id='disabled_DATE.MATURITY']");
+    public static final Target KY_HAN = Target.the("Maturity date").locatedBy("//*[@id='fieldName:LOC.TERM']");
+
+    public static Target dropdownTr(Integer index) {
+        return Target.the("Dropdown tr").locatedBy("//table[@id='dropDownTable:transactionId']//tr[" + index + "]//b");
+    }
+
+    public static final Target CUSTOMER_TYPE = Target.the("customer type").locatedBy("//input[@id='value:1:1:1']");
+    public static final Target ACCOUNT_CATEGORY = Target.the("Account Category").locatedBy("//input[@value='CATEGORY']/parent::td/following-sibling::td/input[@type='text']");
+    public static final Target QUERIED_TABLE = Target.the("Queried Table").locatedBy("//div[@id='enquiryDataScroller']");
+
+    public static final Target getSearchKey(String key) {
+        return Target.the(key).locatedBy("//input[@value='" + key.toUpperCase() + "']/ancestor::td/following-sibling::td/input[@type='text']");
+    }
+
+    public static final Target getSearchKeyTruyVanLimit(String key) {
+        return Target.the(key).locatedBy("//*[@id=\"value:1:1:1\"]");
+    }
+
+
+    public static Target inputField(String tab, String field) {
+        return Target.the(field).locatedBy(SUB_XPATH + field + "']/ancestor::tr[contains(@tabid,'" + tab + "')]//input");
+    }
+
+    public static Target containsInputField(String tab, String field) {
+        return Target.the(field).locatedBy("//tr[@tabid='" + tab + "']//input[contains(@id,'" + field + "')]");
+    }
+
+    public static Target inputFields(String field) {
+        return Target.the(field).locatedBy("//*[contains(text(),'" + field + "')]/ancestor::tr[contains(@tabid,'tab1') or contains(@tabid,'mainTab')]//input");
+    }
+
+    public static Target textAreaField(String tab, String field) {
+        return Target.the(field).locatedBy(SUB_XPATH + field + "']/ancestor::tr[contains(@tabid,'" + tab + "')]//textarea");
+    }
+
+    public static Target textField(String tabId, String field) {
+        return Target.the(field).locatedBy("//tr[@tabid='" + tabId + "']//a[text()='" + field + "']//parent::label//parent::td//following-sibling::td//span[contains(@class,'disabled_dealbox')]");
+    }
+
+    public static Target textFieldWithoutTabId(String field) {
+        return Target.the(field).locatedBy("//a[text()='" + field + "']//parent::label//parent::td//following-sibling::td//span[contains(@class,'disabled_dealbox')]");
+    }
+
+    public static Target containsTextField(String tabId, String field) {
+        return Target.the(field).locatedBy("//tr[@tabid='" + tabId + "']//a[contains(text(),'" + field + "')]//parent::label//parent::td//following-sibling::td//span[contains(@class,'disabled_dealbox')]");
+    }
+
+    public static Target selectRadioButton(String field, String tabId, String textValue) {
+        return Target.the(field + ": " + textValue).locatedBy(SUB_XPATH + field + "']/ancestor::tr[@tabid='" + tabId + "']//span[text()='" + textValue + "']/preceding-sibling::input");
+    }
+
+    public static Target selectRadioButtonByID(String tabId, String id, String textValue) {
+        return Target.the("Select radio button: " + id + ": value: " + textValue).locatedBy(SUB_XPATH + textValue + "']/preceding-sibling::input[@tabname='" + tabId + "' and @id='" + id + "']");
+    }
+
+    public static final Target MESSAGE_TXN = Target.the("Message Txn complete").locatedBy("//td[@class='message' and contains(text(),'Txn Complete')]");
+    public static final Target TOOLS_BANNER = Target.the("Tools in banner").locatedBy("//*[@class='banner']//*[text()='Tools']");
+    public static final Target MY_COMPANIES = Target.the("My Companies").locatedBy("//*[@id='pane_']//*[text()='My Companies']");
+    public static final Target MY_PROFILE = Target.the("My profile").locatedBy("//*[@id='pane_']//*[text()='My Profile']");
+    public static final Target AMEND_PREFERENCES = Target.the("My Companies").locatedBy("//*[@id='pane_']//*[contains(text(),'Amend preferences')]");
+    public static final Target COMPANY_ID = Target.the("Company ID").locatedBy("//input[@id='companyId']");
+
+    public static Target selectChiNhanh(String chiNhanh) {
+        return Target.the("Chi nhánh " + chiNhanh).locatedBy("//*[@id='pane_']//*[text()='" + chiNhanh + " ']");
+    }
+
+    public static Target inputCaptionError(String input) {
+        return Target.the("Thông báo lỗi " + input).locatedBy("//span[contains(text(),'" + input + "')]//parent::a//parent::td//following-sibling::td//span[@class='captionError']");
+    }
+
+    public static Target inputError(String input) {
+        return Target.the("Thông báo lỗi " + input).locatedBy("//td[contains(text(),'" + input + "')]//parent::a//parent::td//following-sibling::td//span[@class='captionError']");
+    }
+
+    public static Target errorCaption(String input) {
+        return Target.the("").locatedBy("//td[contains(text(),'" + input + "')]//following-sibling::td//span[@class='captionError']");
+    }
+
+    public static final Target NEXT_PAGE_BUTTON = Target.the("Next page").locatedBy("//a[@title='Next Page']");
+
+    public static Target selectOptionText(String field, String tabId, String textValue) {
+        return Target.the(field + ": " + textValue).locatedBy(SUB_XPATH + field + "']/ancestor::tr[@tabid='" + tabId + "']//td/following-sibling::td//select");
+    }
+
+    public static final Target RECORD_MISSING = Target.the("RECORD MISSING").locatedBy("//*[contains(text(),'RECORD MISSING')]");
+    public static final Target MESSAGE_NO_NEW_RECORD = Target.the("NO NEW RECORD (ALREADY STORED IN HISTORY FILE)").locatedBy("//*[contains(text(),'NO NEW RECORD')]");
+    public static final Target MESSAGE_RECORD_LOCKED_BY_USER = Target.the("RECORD IS LOCKED BY USER").locatedBy("//*[contains(text(),'RECORD IS LOCKED BY USER')]");
+    public static final Target EXPAND_MULTI_VALUE = Target.the("Expand Multi Value").locatedBy("//img[@title='Expand Multi Value']");
+    public static final Target CURRENCY_AUTO_UPDATE = Target.the("Loai tien:.1").locatedBy("//*[@id='disabled_BK.TOTAL.CURR:1']");
+    public static final Target CURRENCY_AUTO_UPDATE_2 = Target.the("Loai tien:.2").locatedBy("//*[@id='disabled_BK.TOTAL.CURR:2']");
+
+    public static Target elementDynamic(String tabName, String idXPath) {
+        return Target.the("input or select data")
+                .locatedBy("//table[@id='" + tabName + "']//*[@id='" + idXPath + "']");
+    }
+
+    public static Target selectRadio(String tabName, String hiddenInputId, String option) {
+        return Target.the("select radio")
+                .locatedBy("//table[@id='" + tabName + "']//input[@id='" + hiddenInputId + "']//parent::td//table//input[@value='" + option + "']");
+    }
+
+    public static Target selectTab(String tabName) {
+        return Target.the("Select tab: " + tabName)
+                .locatedBy("//*[@id='headtab']//*[contains(text(),'" + tabName + "')]");
+    }
+
+    public static Target clickExpandMulti(String tabId, String fieldName) {
+        return Target.the("Expand " + fieldName).locatedBy("//a[normalize-space(text())='" +
+                fieldName + "']/ancestor::tr[@tabid='" + tabId + "']//a[@title='Expand Multi Value' or @title='Expand Sub Value']");
+    }
+
+    public static Target fieldName(String field) {
+        return Target.the("Check field name: " + field).locatedBy("//label//*[text()='" + field + "']");
+    }
+
+    public static void selectTodayCalenderDate(String tab, String fieldName) {
+        ActionCommon actionCommon = new ActionCommon();
+        Target selectCalenderDate = Target.the("Calender: " + fieldName).locatedBy("//*[text()='" + fieldName + "']/ancestor::tr[@tabid='" + tab + "']//a[@title='Calendar']");
+        Target selectTodayCalender = Target.the("Select Today Calender").locatedBy("//*[contains(@class, 'today')]");
+        actionCommon.clickElement(selectCalenderDate);
+        actionCommon.clickElement(selectTodayCalender);
+    }
+
+
+//    ngocnv
+
+    public static final Target DEBIT_AMOUNT = Target.the("DEBIT AMOUNT").locatedBy("(//*[@id=\"fieldName:REPAY.AMT\"])[1]");
+    public static final Target MATURITY_DATE_AZ = Target.the("MATURITY").locatedBy("(//*[@id=\"fieldName:MAT.DATE\"])[1]");
+    public static final Target INPUT_ID_TATTOAN_AZ = Target.the("PHE DUYET").locatedBy("//*[@id=\"value:1:1:1\"]");
+    public static final Target AUTHORISE_AZ_ACCOUNT = Target.the("Authorise Through AZ Account").locatedBy("  //a[contains(text(),'Authorise Through AZ Account')]");
+
+    public static void selectTodayCalenderDateNGOCNV(String valueDate) {
+        ActionCommon actionCommon = new ActionCommon();
+        Target selectCalenderDate = Target.the("DEBIT.VALUE.DATE").locatedBy("//*[@id=\"" + valueDate + "\"]/tbody/tr[2]/td[3]/a");
+        Target selectTodayCalender = Target.the("Select Today Calender").locatedBy("//*[@id=\"calendar\"]/table/tbody/tr[3]/td[4]/a");
+        actionCommon.clickElement(selectCalenderDate);
+        actionCommon.clickElement(selectTodayCalender);
+    }
+
+
+    public static void selectTodayCalenderDateNGOCNV1() {
+        ActionCommon actionCommon = new ActionCommon();
+        Target selectCalenderDate = Target.the("start date").locatedBy("//*[@id=\"tab1\"]/tbody/tr[7]/td[3]/a");
+        Target selectTodayCalender = Target.the("Select Today Calender").locatedBy("//*[@id=\"calendar\"]/table/tbody/tr[3]/td[6]/a");
+        actionCommon.clickElement(selectCalenderDate);
+        actionCommon.clickElement(selectTodayCalender);
+    }
+
+    public static void selectTodayMinus1CalenderDate(String tab, String fieldName) {
+        ActionCommon actionCommon = new ActionCommon();
+        Target selectCalenderDate = Target.the("Calender: " + fieldName).locatedBy("//*[text()='" + fieldName + "']/ancestor::tr[@tabid='" + tab + "']//a[@title='Calendar']");
+        actionCommon.clickElement(selectCalenderDate);
+        Target dayCalender = Target.the("Today Calender").locatedBy("//*[contains(@class, 'today')]");
+        Target monthInCalender = Target.the("Month Calender").locatedBy("//*[contains(@id, 'monthListfieldName:VALUE.DATE')]");
+        String day = actionCommon.getTextOf(dayCalender);
+
+        if (day.equalsIgnoreCase("1")) {
+            String monthTemp = actionCommon.getAttributeElement(monthInCalender, "value");
+            int tempMonth = Integer.parseInt(monthTemp) - 1;
+            String month = tempMonth > 10 ? String.valueOf(tempMonth) : "0" + String.valueOf(tempMonth);
+            actionCommon.selectValueInDropdownList(monthInCalender, month);
+            Target dayLastOfMonthInCalender = Target.the("Day last of month in Calender").locatedBy("(//div[@id='calendar']//a)[last()]");
+            actionCommon.clickElement(dayLastOfMonthInCalender);
+        } else {
+            Target selectTodayCalender = Target.the("Select Today Calender").locatedBy("//*[contains(@class, 'today')]//parent::td//preceding-sibling::td[1]//a");
+            actionCommon.clickElement(selectTodayCalender);
+        }
+    }
+
+    public static void selectTodayMinus1CalenderDateGetByValue(String tab, String fieldName) throws ParseException {
+        ActionCommon actionCommon = new ActionCommon();
+        Target selectCalenderDate = Target.the("Calender: " + fieldName).locatedBy("//*[text()='" + fieldName + "']/ancestor::tr[@tabid='" + tab + "']//a[@title='Calendar']");
+        actionCommon.clickElement(selectCalenderDate);
+        Target dayCalender = Target.the("Today Calender").locatedBy("//*[contains(@class, 'today')]");
+        Target monthInCalender = Target.the("Month Calender").locatedBy("//*[contains(@id, 'monthListfieldName:VALUE.DATE')]");
+        String day = actionCommon.getTextOf(dayCalender);
+
+        if (day.equalsIgnoreCase("1")) {
+            String monthTemp = actionCommon.getAttributeElement(monthInCalender, "value");
+            int tempMonth = Integer.parseInt(monthTemp) - 1;
+            String month = tempMonth > 10 ? String.valueOf(tempMonth) : "0" + String.valueOf(tempMonth);
+            actionCommon.selectValueInDropdownList(monthInCalender, month);
+            Target dayLastOfMonthInCalender = Target.the("Day last of month in Calender").locatedBy("(//div[@id='calendar']//a)[last()]");
+            actionCommon.clickElement(dayLastOfMonthInCalender);
+        } else {
+            int tempDay = Integer.parseInt(day) - 1;
+            //Check ngày nghỉ và cuối tuần
+            String currentWindows = getDriver().getTitle();
+            ActionCommon.printLog(currentWindows);
+            actionCommon.switchToChildWindowsWithContainsTitle(PageTitles.TITLE_HOI_SO);
+            String today = actionCommon.getCurrentDateTimeT24(BaseStringUtils.FOMART_DATE_DD_MMM_YYYY);
+            String dateToCheck = tempDay + today.substring(2,today.length());
+
+            actionCommon.switchToChildWindowsWithContainsTitle(PageTitles.TITLE_HOI_SO);
+            String dateAfterCheck = actionCommon.checkSunday(dateToCheck,BaseStringUtils.FOMART_DATE_DD_MMM_YYYY,0);
+            String dateToClick = dateAfterCheck.substring(0,2);
+            getDriver().close(); // đóng màn hình holiday
+            actionCommon.switchToChildWindowsWithContainsTitle(currentWindows);
+
+            Target selectTodayCalenderMinus1 = Target.the("Select Today Calender Minus 1").locatedBy("//a[contains(text(), '" + dateToClick + "')]//parent::td");
+            actionCommon.clickElement(selectTodayCalenderMinus1);
+        }
+    }
+
+    public static void selectTodayCalenderDateFormInput() {
+        ActionCommon actionCommon = new ActionCommon();
+        Target selectCalenderDate = Target.the("Calender: ").locatedBy("//label[text()='MATURITY.DATE']//parent::*//parent::*//parent::tr//*[@title='Calendar']");
+        Target selectTodayCalender = Target.the("Select Today Calender").locatedBy("//*[contains(@class, 'today')]");
+        actionCommon.clickElement(selectCalenderDate);
+        actionCommon.clickElement(selectTodayCalender);
+    }
+
+    public static Target messageAcceptOverrides(String message) {
+        return Target.the("Message Accept overrides: " + message).locatedBy("//*[@class='overrideOn' and contains(text(),'" + message + "')]");
+    }
+
+    public static String getTextCalenderDate(String tab, String fieldDate) {
+        ActionCommon actionCommon = new ActionCommon();
+        Target calenderDate = Target.the("Calender: " + fieldDate).locatedBy("//*[text()='" + fieldDate + "']/ancestor::tr[@tabid='" + tab + "']//span[contains(@id,'enri')]");
+        return actionCommon.getTextOf(calenderDate);
+    }
+
+    public static Target findDataBy(String textField) {
+        return Target.the(textField).locatedBy("//label[text()='" + textField + "']//parent::span//parent::td//following-sibling::td//input[contains(@class,'enqseldata')]");
+    }
+
+    public static Target selectionWith(String textField) {
+        return Target.the(textField).locatedBy("//label[text()='" + textField + "']//parent::span//parent::td//following-sibling::td//select");
+    }
+
+    public static Target searchByField(String field) {
+        return Target.the(field).locatedBy("//label[text()='" + field + "']/ancestor::td/following-sibling::*//input[@type='text']");
+    }
+
+    public static Target listPreTabs(String tabName) {
+        return Target.the("Tab " + tabName).
+                locatedBy("//*[@id='headtab']//*[text()='" + tabName + "']//parent::a//parent::td//preceding-sibling::td");
+    }
+
+    public static Target getTransactionIdBy(String accountNumber) {
+        return Target.the("TransactionId").locatedBy("//td[text()='" + accountNumber + "']//preceding-sibling::td//a[contains(@href,'transactionId')]");
+    }
+
+    public static Target getAmountByCurr(String tabId, String currency) {
+        return Target.the("Amount").locatedBy("//tr[@tabid='" + tabId + "']//input[@value='" + currency + "']//parent::td//following-sibling::td//input[contains(@id,'fieldName:BK.TOTGD.AMT')]");
+    }
+
+    public static Target getTotalAmountByCurr(String currency) {
+        return Target.the("Total Amount").locatedBy("//span[contains(text(),'" + currency + "')]//parent::td//following-sibling::td//span[contains(@id,BK.TOTAL.AMT)]");
+    }
+
+    public static Target getXacNhanButToanLinkBy(String bangkeId) {
+        return Target.the("Xác nhận bút toán chuyển quỹ").locatedBy("//td[contains(text(),'" + bangkeId + "')]//following-sibling::td//a[text()='Xac nhan but toan chuyen quy']");
+    }
+
+    public static Target expandSubValueBangKe(String idMenhGia) {
+        return Target.the("Expand sub value").locatedBy("//span[@id='" + idMenhGia + "']//parent::td//preceding-sibling::td//img[@title='Expand Sub Value']");
+    }
+
+    public static Target getSelectionByMaGiaoDich(String maGiaoDich) {
+        return Target.the("Selection ").locatedBy("//span[text()='" + maGiaoDich + "']//parent::td//following-sibling::td//select");
+    }
+
+
+    //span[text()='Retail user menu']/following-sibling::ul//*[text()='Rut goc tung phan -DN']
+    // Example: String [] listMenu = {"Retail user menu", "Rut goc tung phan -DN", "Mo tai khoan RTP.DN "};
+    // return //span[text()='Retail user menu']/following-sibling::ul//*[text()='Rut goc tung phan -DN']/following-sibling::ul//*[text()='Mo tai khoan RTP.DN ']
+    public static Target getMenuHomePageT24(String[] listMenu) {
+
+        if (listMenu.length < 1) {
+            return null;
+        }
+        StringBuilder xpathMenu = new StringBuilder("//span[text()='" + listMenu[0] + "']");
+        for (int indexMenu = 1; indexMenu < listMenu.length; indexMenu++) {
+            xpathMenu.append("/following-sibling::ul//*[text()='").append(listMenu[indexMenu]).append("']");
+        }
+
+        return Target.the(listMenu[listMenu.length - 1]).locatedBy(xpathMenu.toString());
+    }
+
+    public static Target getRadioButtonSelectedByValue(String idRadioButton, String value) {
+        return Target.the(idRadioButton).locatedBy("//*[@id='" + idRadioButton + "' and @selected='true' and @value='" + value + "']");
+    }
+
+    public static Target getSelectedRadioButton(String field) {
+        return Target.the("Radio button" + field).locatedBy("//*[contains(text(),'" + field + "')]/ancestor::tr[@tabid]//input[@selected='true']");
+    }
+
+    public static Target getSelectOptionSelectedByValue(String idFieldName, String tabName, String value) {
+        return Target.the(idFieldName).locatedBy("//*[@id='" + idFieldName +
+                "' and @tabname='" + tabName + "']//option[@value='" + value + "' and @selected='true']");
+    }
+
+    public static Target getNavigationItem(List<String> navNames) {
+        if (0 == navNames.size() || null == navNames) {
+            return null;
+        }
+
+        StringBuilder xpathNavigation = new StringBuilder();
+        for (int i = 0; i < navNames.size(); i++) {
+
+            if (i == 0) {
+                xpathNavigation.append("//*[normalize-space(text())='" + navNames.get(i) + "']");
+                continue;
+            }
+
+            xpathNavigation.append("/following-sibling::ul[@style='display: block;']/li/*[normalize-space(text())=\""
+                    + navNames.get(i) + "\"]");
+        }
+
+        return Target.the("Navigation Menu " + navNames.get(navNames.size() - 1))
+                .locatedBy(xpathNavigation.toString());
+    }
+
+    public static Target getExpandedNavigationItem(String xpathMenuItem) {
+        return Target.the("Expanded Navigation Item ")
+                .locatedBy(xpathMenuItem + "/following-sibling::ul");
+    }
+
+    //__________FPT_AnhDTN6________
+    public static Target switchToBranch(String branch) {
+        return Target.the("Switch to branch").locatedBy("//*[contains(text(),'My Companies')]//following-sibling::ul//descendant::a[contains(text(),'" + branch + "')]");
+    }
+
+    public static final Target RECORD_INFO_FORM = Target.the("Record Info Form").locatedBy("//form[@id='appreq']");
+
+    public static final Target DUYET_BAN_GHI = Target.the("Duyet ban ghi").locatedBy("//a[text()='Duyet ban ghi']");
+    public static final Target DUYET_BAN_GHI_HACH_TOAN = Target.the("Duyet ban ghi hach toan").locatedBy("//*[@id='fastPathType']/ancestor::td/following-sibling::*//a");
+    public static final Target checkBoxHachToan(String id) {
+        return Target.the("Check box hach toan").locatedBy("//*[contains(text(),'" + id + "')]//preceding-sibling::td//following-sibling::td");
+    }
+
+    public static Target inputFieldNonTab(String field) {
+        return Target.the(field).locatedBy("//a[@class='active-tab']/following::*[contains(text(), '" + field + "')]/ancestor::tr[@tabid]//input");
+    }
+
+
+    //__________FPT_TramTK__________
+    public static final Target SELECT_MORE_ACTIONS = Target.the("Select more actions").locatedBy("//*[@id='moreactions']");
+
+    //__________FPT_TramTK__________
+    public static Target FIRST_ID_START_BM = Target.the("Id start BM").locatedBy("//b[starts-with(text(), 'BM')]");
+
+    //__________FPT_TramTK__________
+    public static Target branchUser(String text) {
+        return Target.the("BranchUser").locatedBy("//*[@id='enqsel']//*[contains(text(),'" + text + "')]");
+    }
+
+    public static Target clickExpandSub(String tabId, String fieldName) {
+        return Target.the("Expand " + fieldName).locatedBy("//a[normalize-space(text())='" +
+                fieldName + "']/ancestor::tr[@tabid='" + tabId + "']//a[@title='Expand Sub Value']");
+    }
+
+    // FPT ThamTT
+    public static Target clickDroplistNextTransectionId(String fieldName) {
+        return Target.the(fieldName).locatedBy("//a[normalize-space(text())='" + fieldName + "']//parent::td//parent::tr//a[@title = 'Dropdown List']");
+    }
+
+    public static final Target clickTabLe(String nameTab) {
+        return Target.the("click tab " + nameTab).locatedBy("//table[@id = 'headtab']//span[text()='" + nameTab + "']");
+    }
+
+    public static Target getDataField(String fieldName) {
+        return Target.the(fieldName).locatedBy("//a[normalize-space(text()) ='" + fieldName + "']//ancestor::tr[@tabid]//span");
+    }
+
+    //__________FPT_TramTK__________
+    public static final Target DUYET = Target.the("Duyet").locatedBy("//a[text()='Duyet']");
+
+    public static final Target authoriseLc(String text) {
+        return Target.the("Authorise LC").locatedBy("//a[contains(text(),'" + text + "')]");
+    }
+
+    public static final Target LOADING_SCREEN = Target.the("Loading Screen")
+            .locatedBy("//div[@id='processingPage' and contains(@style, 'display: block')]");
+
+    public static final Target selectionInTable(int index) {
+        return Target.the("Selection in table").locatedBy("//*[@id='r" + index + "']/td[1]/a");
+    }
+
+    public static final Target selectionInTables(String text) {
+        return Target.the("Selection in table").locatedBy("//td[text() = '"+text+"']/parent::tr/td[1]");
+    }
+
+
+    // __________FPT_HANM16_______
+    public static final Target XOA = Target.the("Xoa").locatedBy("//a[text()='Xoa']");
+
+    public static final Target deleteLc(String text) {
+        return Target.the("Delete LC").locatedBy("//a[contains(text(),'" + text + "')]");
+    }
+
+    public static final Target MA_CHI_NHANH = Target.the("Ma Chi Nhanh").locatedBy("(//div[contains(@class,'table-section')])[last()]");
+
+
+    //    FPT_ANHDTN6
+    public static Target selectRadioButton(String field) {
+        return Target.the("Radio button" + field)
+                .locatedBy("//*[contains(normalize-space(text()),'" + field + "')]/ancestor::tr[@tabid]//input[@selected='false']");
+    }
+
+    public static Target selectOptionByLabel(String label, String value) {
+        return Target.the("Select option" + label)
+                .locatedBy("//*[contains(text(),'" + label + "')]/ancestor::tr[@tabid]//select//option[contains(@value,'" + value + "')]");
+    }
+
+    public static Target selectOption(String label) {
+        return Target.the("Select option" + label)
+                .locatedBy("//*[contains(text(),'" + label + "')]/ancestor::tr[@tabid]//select");
+    }
+
+    public static final Target LINK_BACK_TO = Target.the("Back to").locatedBy("//*[@id='enquiryResponseCrumbs']/tbody/tr/td[2]/a");
+
+    //FPT_KHANHNN13
+    public static Target searchOperator(String operator) {
+        return Target.the(operator).locatedBy("//label[text()='" + operator + "']/ancestor::td/following-sibling::*//select");
+    }
+
+    //FPT_TramNBB
+    public static final Target authoriseGuarantee = Target.the("AuthoriseGuarantee").locatedBy("//a[text()='Authorise Guarantee Transaction']");
+
+    //FPT_ANHDTN6
+    public static Target getValueFieldWithALabel(String label) {
+        return Target.the(label + " Value Field")
+                .locatedBy("//td[contains(@class,'field') and .//*[normalize-space(text())='" + label + "']]/" +
+                        "following-sibling::td/span[contains(@class,'enrichment ')]");
+    }
+
+    //FPT_TRAMTK
+    public static final Target ENQUIRY_MSG = Target.the("Enqheader Message")
+            .locatedBy("//td[@id='enqheader-msg']/span");
+
+
+    //FPT_TRAMTK
+    public static Target getLinkError(String text) {
+        return Target.the("Link Error")
+                .locatedBy("//*[@id='errors']//span[contains(text(),'" + text + "')]//parent::a");
+    }
+
+    public static Target getDropdownSearchTable(String text) {
+        return Target.the("Dropdown In Search")
+                .locatedBy("(//input[normalize-space(@value)='" + text + "']/following::img[contains(@class,'dropdown')])[1]");
+    }
+
+    // FPT_TramNBB
+    public static Target CustomerBanksSecond = Target.the(" Customer Banks Link")
+            .locatedBy("(//*[text()='Customer: Banks '])[2]");
+
+    public static Target TD_NO_HISTORICAL_CURRENCY = Target.the("No historical currency")
+            .locatedBy("//td[text()='No Historical Data Found for this Currency']");
+
+    public static Target getTdCellByTextContainingNbsp(String text) {
+        // NBSP character is generated by ALT + 0160 on Windows and by Alt + Shift + Space on Mac
+        return Target.the(text).locatedBy(
+                "//td[contains(text(), '" + text.replace(" ", " ") + "')]/following-sibling::td");
+    }
+
+    //FPT_ANHDTN6
+    public static Target getValueTextAreadWithALabel(String label) {
+        return Target.the(label + " Value Field")
+                .locatedBy("//td[./label[.//a[normalize-space(text())='" + label + "']]]/following-sibling::td/textarea");
+    }
+
+    public static final Target selectDrilldownInTable(int index) {
+        return Target.the("Select Drilldown in table").locatedBy("//*[@id='r" + index + "']//*[@title='Select Drilldown']");
+    }
+
+    public static final Target drillboxInTable(int index) {
+        return Target.the("Drillbox in table").locatedBy("//*[@id='drillbox:1_" + index + "']");
+    }
+
+    public static final Target drillboxInTableByIndex(int beforeNum, int afterNum) {
+        return Target.the("Drillbox in table by Num").locatedBy("//*[@id='drillbox:" + beforeNum + "_" + afterNum + "']");
+    }
+
+    public static final Target elementContainsId(String tabId, String id) {
+        return Target.the("Element Contains Id").locatedBy("//table[@id='" + tabId + "']//*[contains(@id, '" + id + "')]");
+    }
+
+    //FPT_TRAMNBB
+    public static final Target DELETE_LOAN = Target.the("Delete Loan").locatedBy("//a[text()='Delete Loan']");
+
+    public static Target clickExpandMultiValue(String tabId, String fieldName) {
+        return Target.the("Expand " + fieldName).locatedBy("//a[normalize-space(text())='" +
+                fieldName + "']/ancestor::tr[@tabid='" + tabId + "']//a[@title='Expand Multi Value']");
+    }
+
+    public static final Target getDropdownListSearch(String key) {
+        return Target.the(key).locatedBy("//input[@value='" + key.toUpperCase() + "']/ancestor::td/following-sibling::td/a[@title='Dropdown List']/img");
+    }
+
+    //KHANHNN13
+    public static final Target BANNERTXT = Target.the("BANNERTXT").locatedBy("//*[@class='bannertxt']");
+
+    public static final Target User_id = Target.the("User_id").locatedBy("//*[contains(text(), 'User Id')]/ancestor::td/following-sibling::td/span[contains(@class, 'disabled_dealbox')]");
+
+    public static final Target FIRST_INPUT_FIELD = Target.the("FIRST_INPUT_FIELD")
+            .locatedBy("(//tr[contains(@tabid, 'tab') or contains(@tabid, 'mainTab')]//input)[1]");
+    //AnhDTN6
+    public static final Target NOTE_MB_RETAIL = Target.the("Note")
+            .locatedBy(" //*[@id='fieldName:NOTE']");
+    public static final Target COMPANY_NAME = Target.the("CO").locatedBy("//*[@id=\"fieldCaption:COMPANY.NAME\"]");
+
+    public static final Target AVAIL_AMOUNT_1 = Target.the("AVAIL_AMOUNT_1")
+            .locatedBy(" //*[@id='disabled_AVAIL.AMT:1']");
+}
+

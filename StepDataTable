@@ -1,0 +1,149 @@
+@And("Tìm kiếm theo account keyword")
+    public void searchAccountByCategory(DataTable table) throws ParseException {
+
+        actionCommon.clickElement(MbRmDoiTacComponent.clearSelection());
+
+        List<Map<String, String>> searchkeys = table.asMaps(String.class, String.class);
+        SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+        for (Map<String, String> key : searchkeys) {
+
+            // input search value
+            String searchValue = key.get("value").trim();
+
+            if (searchValue.equals("") || searchValue == null) {
+                continue;
+            }
+
+            // Select operand for search value
+            String operator = key.get("operator");
+            if (!operator.equals("") && operator != null) {
+                Select dropdown = new Select(
+                        getDriver().findElement(By.xpath(
+                                HomePageT24Form.getOperand(key.get("searchKey")).getCssOrXPathSelector())
+                        ));
+
+                dropdown.selectByVisibleText(operator);
+            }
+
+            searchValue = searchValue.equals("#record-id") ?
+                    Serenity.sessionVariableCalled("recordId") + "#" : searchValue;
+	}
+	
+	
+	
+@And("Lấy ID account customer với DK là {string}")
+    public void getAccountCustomerID(String key) throws Exception {
+
+
+        DieuKien(key);
+
+        List<Map<String, String>> result = actionCommon.filterDataTableWithNumber(filterOptions, 15);
+
+        if (0 == result.size()) throw new AssumptionViolatedException(
+                "This scenario does not include any 'Customer Id bất kỳ' as a precondition."
+                        + " Therefore, it will be skipped!!!");
+
+        List<String> listCus = new ArrayList<>();
+        List<String> listCCY = new ArrayList<>();
+        List<String> soDuTK = new ArrayList<>();
+        List<String> Account = new ArrayList<>();
+
+        for (Map<String, String> item : result) {
+            listCus.add(item.get("Customer.id"));
+        }
+
+        for (Map<String, String> item : result) {
+            soDuTK.add(item.get("So du kha dung"));
+        }
+
+        for (Map<String, String> item : result) {
+            listCCY.add(item.get("CCY"));
+        }
+
+        for (Map<String, String> item : result) {
+            Account.add(item.get("Account.number"));
+        }
+
+        Random generator = SecureRandom.getInstanceStrong();
+
+        int index = 0;
+        if (listCus.size() > 0) {
+            int max = listCus.size() - 1;
+            int min = 0;
+            index = generator.nextInt(max - min + 1) + min;
+        } else {
+            throw new Exception("không tìm được giá trị trong drop list");
+        }
+
+
+        String idCustomer = listCus.get(index);
+        actionCommon.setValueSection("ListCustomer", String.join(",", listCus));
+        actionCommon.setValueSection("Id_INDIV", idCustomer);
+        actionCommon.setValueSection("CCY_DY", listCCY.get(index));
+        actionCommon.setValueSection("Account_ID", Account.get(index));
+        actionCommon.setValueSection("So_Du_Kha_Dung", Integer.parseInt(soDuTK.get(index)) + 100 + "");
+        actionCommon.setValueSection("So_Du_Kha_Dung_Smaller", Integer.parseInt(soDuTK.get(index)) - 100 + "");
+
+    }
+	
+	
+@And("Tìm kiếm danh sách Account với Prt Code 1, 11, 21, 41 và UNAUTH.KEY = null và EXITS.TRANS.FWD = null trong bảng ENQ.CBS.LIETKE.ACCOUNT dựa trên danh sách account id")
+    public void retrieveRandomCreditAccount() throws Exception {
+        List<String> accountNumbers = new ArrayList<>();
+        List<String> customerIds = new ArrayList<>();
+        List<String> currencies = new ArrayList<>();
+
+        List<Map<String, String>> filterOptions = new ArrayList<>();
+
+        Map<String, String> option1 = new HashMap<>();
+        option1.put("columnName", "Prt code");
+        option1.put("operator", "EQUAL");
+        option1.put("valueToFilter", "1|11|21|41");
+        filterOptions.add(option1);
+
+        Map<String, String> option2 = new HashMap<>();
+        option2.put("columnName", "UNAUTH.KEY");
+        option2.put("operator", "EQUAL");
+        option2.put("valueToFilter", "");
+        filterOptions.add(option2);
+
+        Map<String, String> option3 = new HashMap<>();
+        option3.put("columnName", "EXITS.TRANS.FWD");
+        option3.put("operator", "EQUAL");
+        option3.put("valueToFilter", "");
+        filterOptions.add(option3);
+
+        Map<String, String> option4 = new HashMap<>();
+        option4.put("columnName", "Working balance");
+        option4.put("operator", "GREATER");
+        option4.put("valueToFilter", "55000");
+        filterOptions.add(option4);
+
+        actionCommon.clearPreviousSearchKey();
+        actionCommon.typeText(HomePageT24Form.getSearchKey("UNAUTH.KEY"), "Y");
+        actionCommon.typeText(HomePageT24Form.getSearchKey("ACCT.TRANS.FWD"), "Y");
+
+        for (String account : Serenity.sessionVariableCalled("listOfCustomerNumbers").toString().split(",")) {
+            actionCommon.typeText(HomePageT24Form.getSearchKey("ACCT.ID"), account);
+
+            actionCommon.clickRunSelection();
+
+            Map<String, String> item = actionCommon.filterDataTableAndGetFirstItem(filterOptions);
+
+            if (item == null) continue;
+
+            accountNumbers.add(item.get("Account"));
+            customerIds.add(item.get("Customer"));
+            currencies.add(item.get("Currency"));
+        }
+
+        if (accountNumbers.size() == 0) {
+            throw new AssumptionViolatedException(
+                    "This scenario does not include any 'Account với Prt Code 1, 11, 21, 41 và UNAUTH.KEY = null và EXITS.TRANS.FWD = null' as a precondition."
+                            + " Therefore, it will be skipped!!!");
+        }
+
+        actionCommon.setValueSection("listOfCustomerNumbers", String.join(",", accountNumbers));
+        actionCommon.setValueSection("listOfCustomerIds", String.join(",", customerIds));
+        actionCommon.setValueSection("listOfCurrencies", String.join(",", currencies));
+    }

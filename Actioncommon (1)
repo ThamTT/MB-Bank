@@ -1,0 +1,2987 @@
+package cucumber.common;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import cucumber.api.java.en.And;
+import cucumber.api.java.it.Ma;
+import cucumber.model.AccountDB;
+import cucumber.questions.CommonQuestions;
+import cucumber.tasks.DataBaseManager;
+import cucumber.tasks.InputToCommandT24;
+import cucumber.user_interface_t24vn.CustomerComponent;
+import cucumber.user_interface_t24vn.FundsTransferComponent;
+import cucumber.user_interface_t24vn.HomePageT24Form;
+import cucumber.user_interface_t24vn.T24DATE;
+import mb.auto.t24.customer.CustomerMdtIndiv3Definitions;
+import net.serenitybdd.core.Serenity;
+import net.serenitybdd.screenplay.actions.Click;
+import net.serenitybdd.screenplay.actions.Enter;
+import net.serenitybdd.screenplay.actions.Scroll;
+import net.serenitybdd.screenplay.actions.SelectFromOptions;
+import net.serenitybdd.screenplay.matchers.WebElementStateMatchers;
+import net.serenitybdd.screenplay.questions.Attribute;
+import net.serenitybdd.screenplay.questions.Text;
+import net.serenitybdd.screenplay.targets.Target;
+import net.serenitybdd.screenplay.waits.WaitUntil;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.exceptions.InvalidOperationException;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+import org.joda.time.format.DateTimeFormat;
+import org.junit.Assert;
+import org.openqa.selenium.*;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.Point;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.io.*;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.nio.file.*;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.sql.*;
+import java.text.DateFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.util.Date;
+import java.util.List;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
+
+import static net.serenitybdd.screenplay.GivenWhenThen.seeThat;
+import static net.serenitybdd.screenplay.actors.OnStage.theActorInTheSpotlight;
+import static net.serenitybdd.screenplay.matchers.WebElementStateMatchers.isNotVisible;
+import static net.serenitybdd.screenplay.matchers.WebElementStateMatchers.isVisible;
+import static net.thucydides.core.webdriver.ThucydidesWebDriverSupport.getDriver;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.openqa.selenium.Keys.ENTER;
+import static org.openqa.selenium.Keys.TAB;
+
+public class ActionCommon {
+    private static String pathProject = System.getProperty("user.dir") + "/src/test/resources/data/excel/";
+    private static String pathTxt = System.getProperty("user.dir") + "/src/test/resources/data/txt/";
+    private static String messageIoException = "IOException: ";
+    private static Date date;
+    public static List<String> idFields;
+    public static List<String> valueFields;
+
+
+    public static Date getDate() {
+        return date;
+    }
+
+    public static void setDate(Date date) {
+        ActionCommon.date = date;
+    }
+
+    public void enterValueIntoField(Target targetLocators, String value) {
+        typeText(targetLocators, value);
+        getDriver().findElement(By.xpath(targetLocators.getCssOrXPathSelector())).sendKeys(ENTER);
+    }
+
+    public void setValueSection(String key, String value) {
+        Serenity.setSessionVariable(key).to(value);
+        Serenity.recordReportData().withTitle(key).andContents(Serenity.sessionVariableCalled(key));
+    }
+
+    public String getValueSection(String key) {
+        return Serenity.sessionVariableCalled(key).toString();
+    }
+
+    //    ngocnv copy function
+    public static String getValueSection1(String key) {
+        return Serenity.sessionVariableCalled(key).toString();
+    }
+
+    public WebElement getElement(String xpath) {
+        return getDriver().findElement(By.xpath(xpath));
+    }
+
+    /**
+     * Phương thức này thực hiện việc switch từ iframe bất kỳ về default content.
+     *
+     * @return Nothing
+     */
+    public void switchToDefaultContent() {
+        getDriver().switchTo().defaultContent();
+    }
+
+    /**
+     * Phương thức này thực hiện việc switch về một iframe với id của iframe có chứa chuỗi.
+     * Bằng cách switch về default content, sau đó switch sang iframe này.
+     *
+     * @param containsIdFrame Chuỗi có chứa trong id của iframe. Example: menu
+     * @return Nothing
+     */
+    public void switchFrameByContainsIdFrame(String containsIdFrame) {
+        switchToDefaultContent();
+        String iframeXpath = "//frame[contains(@id,'" + containsIdFrame + "')]";
+        Target iframe = Target.the(containsIdFrame + " frame").locatedBy(iframeXpath);
+        waitVisible(iframe);
+        getDriver().switchTo().frame(getElement(iframeXpath));
+//        pause(3000);
+    }
+
+    /**
+     * Phương thức này thực hiện việc select giá trị text trong thẻ <option> trên html.
+     *
+     * @param xpathExpression Phần xpath locator để xác định vị trí element của thẻ select
+     * @param value           Text cần chọn có trong thẻ <option>
+     * @return Nothing
+     */
+    public void selectValueOption(String xpathExpression, String value) {
+        Select select = new Select(getDriver().findElement(By.xpath(xpathExpression)));
+        select.selectByVisibleText(value);
+    }
+
+    /**
+     * Phương thức này thực hiện các bước để xem một bản ghi
+     *
+     * @param value Giá trị, mã số, hoặc id... cần xem.
+     * @return Nothing
+     */
+    public void viewAContract(String value) {
+        switchToDefaultContent();
+        typeText(HomePageT24Form.TRANSACTION_ID, value);
+        clickElement(HomePageT24Form.VIEW_A_CONTRACT);
+    }
+
+    public void editAContract(String value) {
+        switchToDefaultContent();
+        typeText(HomePageT24Form.TRANSACTION_ID, value);
+        clickElement(HomePageT24Form.EDIT_A_CONTRACT);
+    }
+
+    /**
+     * Phương thức này thực hiện các bước để duyệt thủ công một bản ghi
+     *
+     * @param value Giá trị, mã số, hoặc id... cần xem.
+     * @return Nothing
+     */
+    public void performRecord(String value) {
+        switchToDefaultContent();
+        typeText(HomePageT24Form.TRANSACTION_ID, value);
+        clickElement(HomePageT24Form.PERFORM_A_CONTRACT);
+        clickElement(HomePageT24Form.AUTHORISES_A_DEAL);
+    }
+
+    /**
+     * Phương thức này thực hiện lấy giá trị text ứng với field(trường) bất kỳ.
+     * Thường dùng khi xem một bản ghi nào đó, và chúng ta muốn lấy giá trị hoặc check giá trị trả về của trường.
+     *
+     * @param field Trường cần lấy giá trị
+     * @return Trả về một Target, vị trí phần text của trường.
+     */
+    public Target getValueByField(String field, boolean... isTextField) {
+        if (isTextField.length != 0) {
+            return Target.the(field)
+                    .locatedBy("//*[text()='" +
+                            field + "']/ancestor::tr[@tabid='tab1']//span[contains(@class,'dealbox')]");
+        }
+        return Target.the(field)
+                .locatedBy("//*[@title='" +
+                        field + "']/ancestor::tr[@tabid='tab1']//span[contains(@class,'dealbox')]");
+    }
+
+    /**
+     * Phương thức này thực hiện lấy giá trị text ứng với field(trường) bất kỳ.
+     * Thường dùng khi xem một bản ghi nào đó, và chúng ta muốn lấy giá trị hoặc check giá trị trả về của trường.
+     *
+     * @param field Trường cần lấy giá trị
+     * @param tabid tab id
+     * @return Trả về một Target, vị trí phần text của trường.
+     */
+    public Target getValueByField(String field, String tabid, boolean... isTextField) {
+        if (isTextField.length != 0) {
+            return Target.the(field)
+                    .locatedBy("//*[normalize-space(text())='" +
+                            field + "']/ancestor::tr[@tabid='" + tabid + "']//span[contains(@class,'dealbox')]");
+        }
+        return Target.the(field)
+                .locatedBy("//*[contains(@title,'" +
+                        field + "')]/ancestor::tr[@tabid='" + tabid + "']//span[contains(@class,'dealbox')]");
+    }
+
+    /**
+     * Phương thức này thực hiện lấy giá trị text ứng với id field(trường) bất kỳ.
+     * Thường dùng khi xem một bản ghi nào đó, và chúng ta muốn lấy giá trị hoặc check giá trị trả về của trường.
+     *
+     * @param idField Id của trường cần lấy giá trị (lấy tại tagname for)
+     * @param tabid   tab id
+     * @return Trả về một Target, vị trí phần text của trường.
+     */
+    public Target getValueByIdField(String idField, String tabid) {
+        return Target.the(idField)
+                .locatedBy("//*[@for='" +
+                        idField + "']/ancestor::tr[@tabid='" + tabid + "']//span[contains(@class,'dealbox')]");
+    }
+
+    public Target getValueByIdFieldInput(String idField) {
+        return Target.the(idField)
+                .locatedBy("//*[@id='" + idField + "']");
+    }
+
+    public Target scrollFieldInput(String nameField, String tab) {
+        return Target.the(nameField + " " + tab)
+                .locatedBy("//*[@title='" + nameField + "']/ancestor::tr[@tabid='" + tab + "']");
+    }
+
+    /**
+     * Phương thức này thực hiện việc tìm kiếm tại form search command line
+     * Hàm sẽ switch vào banner frame, sau đó nhập text cần search, cuối cùng sẽ nhấn vào button GO (search).
+     *
+     * @param value Giá trị cần tìm kiếm
+     * @return Nothing
+     */
+    public void searchCommandLineForm(String value) {
+        switchFrameByContainsIdFrame("banner");
+        typeText(HomePageT24Form.COMMANDLINE_TEXTBOX, value);
+        waitVisible(HomePageT24Form.GO_BUTTON);
+        clickElement(HomePageT24Form.GO_BUTTON);
+    }
+
+    public void searchCommandLineForm2(String value) {
+//        switchFrameByContainsIdFrame("banner");
+        typeText(HomePageT24Form.COMMANDLINE_TEXTBOX, value);
+        waitVisible(HomePageT24Form.GO_BUTTON);
+        clickElement(HomePageT24Form.GO_BUTTON);
+    }
+
+    /**
+     * Phương thức này thực hiện việc lấy thời gian hiện tại của hệ thống T24
+     * Hàm sẽ mở bảng "MB.RETAILS.PARAM", sau đó thực hiện view giá trị "SWIFT.OUT.DATE".
+     * Tiếp đó thực hiện việc lấy giá trị từ trường Note có trong bản ghi "SWIFT.OUT.DATE".
+     * Khi đã lấy được thời gian, sẽ thực hiện việc quay về tab "T24 - HOI SO".
+     *
+     * @return Trả về ngày hệ thống kiểu chuỗi, với định dạng trên hệ thống tương tự như: yyyyMMdd
+     */
+    public String getCurrentDateTime() {
+        this.searchCommandLineForm("MB.RETAILS.PARAM");
+
+        // open MB.RETAILS.PARAM
+        InputToCommandT24.switchToChildWindowsByTitle("MB.RETAILS.PARAM");
+
+        // view Note
+        this.viewAContract("SWIFT.OUT.DATE");
+
+        String currentDate = getDriver().findElement(
+                By.xpath(getValueByField("Note").getCssOrXPathSelector())).getText();
+        getDriver().close();
+        InputToCommandT24.switchToChildWindowsByTitle("T24 - HOI SO");
+        return currentDate;
+    }
+
+
+    public String getCurrentDateTimeT24(String format) throws ParseException {
+        this.searchCommandLineForm("DATES S VN0010001");
+
+        // open date t24
+        InputToCommandT24.switchToChildWindowsByTitle("DATES");
+        //
+        theActorInTheSpotlight().attemptsTo(
+                WaitUntil.the(T24DATE.TODAY_TIME, isVisible()));
+
+        String currentDate = getDriver().findElement(By.xpath(T24DATE.TODAY_TIME.getCssOrXPathSelector())).getText();
+        Serenity.setSessionVariable("DATE T24").to(currentDate);
+        //conver String to date
+        SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
+        // DataSwiftTest.date k ảnh hưởng
+        setDate(formatter.parse(currentDate));
+        // convert to string
+        SimpleDateFormat dateFormatGmt = new SimpleDateFormat(format);
+        String currentDateT24 = dateFormatGmt.format(getDate());
+        Serenity.setSessionVariable("systemTime").to(currentDateT24);
+        getDriver().close();
+        return currentDateT24;
+
+    }
+
+    public String getCurrentDateTimeT24Deal(String format) throws ParseException {
+        this.searchCommandLineForm("DATES S VN0010001");
+
+        // open date t24
+        InputToCommandT24.switchToChildWindowsByTitle("DATES");
+        //
+        theActorInTheSpotlight().attemptsTo(
+                WaitUntil.the(T24DATE.TODAY_TIME, isVisible()));
+
+        String currentDate = getDriver().findElement(By.xpath(T24DATE.TODAY_TIME.getCssOrXPathSelector())).getText();
+        Serenity.setSessionVariable("DATE T24").to(currentDate);
+        //conver String to date
+        SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
+        // DataSwiftTest.date k ảnh hưởng
+        setDate(formatter.parse(currentDate));
+        // convert to string
+        SimpleDateFormat dateFormatGmt = new SimpleDateFormat(format);
+        String currentDateT24 = dateFormatGmt.format(getDate());
+        getDriver().close();
+        return currentDateT24;
+
+    }
+
+
+    public String getCurrentDateTimeT24Plus1(String format) throws ParseException {
+        this.searchCommandLineForm("DATES S VN0010001");
+        // open date t24
+        InputToCommandT24.switchToChildWindowsByTitle("DATES");
+        //
+        theActorInTheSpotlight().attemptsTo(
+                WaitUntil.the(T24DATE.TODAY_TIME, isVisible()));
+
+        String currentDate = getDriver().findElement(By.xpath(T24DATE.TODAY_TIME.getCssOrXPathSelector())).getText();
+        //conver String to date
+        SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
+        // DataSwiftTest.date k ảnh hưởng
+        setDate(formatter.parse(currentDate));
+        // convert to string
+
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(getDate());
+        cal.add(Calendar.DATE, 1);
+        setDate(cal.getTime());
+        SimpleDateFormat dateFormatGmt = new SimpleDateFormat(format);
+        String currentDateT24 = dateFormatGmt.format(getDate());
+
+        getDriver().close();
+        return currentDateT24;
+
+    }
+
+    public String getCurrentDateTimeT24Plus(String format, int days) throws ParseException {
+        this.searchCommandLineForm("DATES S VN0010001");
+
+        // open date t24
+        InputToCommandT24.switchToChildWindowsByTitle("DATES");
+        //
+        theActorInTheSpotlight().attemptsTo(
+                WaitUntil.the(T24DATE.TODAY_TIME, isVisible()));
+
+        String currentDate = getDriver().findElement(By.xpath(T24DATE.TODAY_TIME.getCssOrXPathSelector())).getText();
+        //conver String to date
+        SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
+        // DataSwiftTest.date k ảnh hưởng
+        setDate(formatter.parse(currentDate));
+        Serenity.setSessionVariable("systemTimeAsddMMyyyy").to(currentDate);
+        // convert to string
+
+        SimpleDateFormat dateFormatGmt = new SimpleDateFormat(format);
+        Serenity.setSessionVariable("systemTime").to(dateFormatGmt.format(getDate()));
+        Serenity.setSessionVariable("DATE T24").to(currentDate);
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(formatter.parse(currentDate));
+        cal.add(Calendar.DATE, days);
+        setDate(cal.getTime());
+        String datePlus = dateFormatGmt.format(cal.getTime());
+        Serenity.setSessionVariable("DATE PLUS " + days).to(datePlus);
+
+        getDriver().close();
+        return datePlus;
+    }
+
+
+    /**
+     * Phương thức này thực hiện việc đợi cho một element hiển thị, sau đó nhập giá trị vào input của nó.
+     *
+     * @param targetLocators locator của element input kiểu Target
+     * @param value          giá trị cần nhập vào input
+     * @return Nothing
+     */
+    public void typeText(Target targetLocators, String value) {
+        waitVisible(targetLocators);
+        theActorInTheSpotlight().attemptsTo(
+                Enter.theValue(value).into(targetLocators));
+    }
+
+
+    public void typeTextWithPageReload(Target targetLocators, String value) {
+        theActorInTheSpotlight().attemptsTo(
+                WaitUntil.the(targetLocators, isVisible()));
+
+        for (int repeat = 0; repeat < 10; repeat++) {
+            try {
+                getElement(targetLocators.getCssOrXPathSelector()).clear();
+                getElement(targetLocators.getCssOrXPathSelector()).sendKeys(value);
+                return;
+            } catch (Exception e) {
+                ActionCommon.printLog("Doi element hien thi lan " + (repeat + 1));
+                pause(1000);
+            }
+        }
+
+        Assert.fail("Not found: " + targetLocators.getCssOrXPathSelector());
+    }
+
+    public void clickElement(Target targetLocators) {
+        theActorInTheSpotlight().attemptsTo(
+                WaitUntil.the(targetLocators, isVisible()).forNoMoreThan(30).seconds(),
+                Click.on(targetLocators));
+    }
+
+    public void waitVisible(Target targetLocators) {
+        theActorInTheSpotlight().attemptsTo(
+                WaitUntil.the(targetLocators, isVisible()).forNoMoreThan(30).seconds());
+    }
+
+    public void waitInvisible(Target targetLocators) {
+        theActorInTheSpotlight().attemptsTo(
+                WaitUntil.the(targetLocators, WebElementStateMatchers.isNotVisible()));
+    }
+
+    public void waitElement(Target targetLocators) {
+        theActorInTheSpotlight().attemptsTo(
+                WaitUntil.the(targetLocators, isVisible()).forNoMoreThan(10).seconds());
+    }
+
+    public void sleep(long time) {
+        pause(time);
+    }
+
+    public static WebElement existElement(String xpath) {
+        try {
+            //pause(1000);
+            return getDriver().findElement(By.xpath(xpath));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public WebElement existElement(Target targetLocators) {
+        try {
+            //pause(1000);
+            return getDriver().findElement(By.xpath(targetLocators.getCssOrXPathSelector()));
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public void accessTab(String tabName) {
+        Target tab = Target.the("Tab " + tabName).
+                locatedBy("//*[@id='headtab']//*[text()='" + tabName + "']");
+        clickElement(tab);
+
+    }
+
+    public void commitCreateAccount() {
+        clickCommitTheDeal();
+        if (null != existElement(HomePageT24Form.ACCEPT_OVERRIDES.getCssOrXPathSelector())) {
+            clickElement(HomePageT24Form.ACCEPT_OVERRIDES);
+            if (null != existElement(HomePageT24Form.COMMIT_THE_DEAL.getCssOrXPathSelector())) {
+                clickCommitTheDeal();
+            }
+        }
+    }
+
+    public void commitCreateOneTime() {
+        clickCommitTheDeal();
+        if (null != existElement(HomePageT24Form.ACCEPT_OVERRIDES.getCssOrXPathSelector())) {
+            clickElement(HomePageT24Form.ACCEPT_OVERRIDES);
+        }
+    }
+
+    public void clearText(String xpath) {
+        try {
+            ActionCommon.printLog("Clear text in Field Input");
+            getDriver().findElement(By.xpath(xpath)).clear();
+        } catch (Exception e) {
+            ActionCommon.printLog(" ======== Canot clear text in field or Not find element =======");
+        }
+    }
+
+    public void clickTab(Target targetLocators) {
+        getDriver().findElement(By.xpath(targetLocators.getCssOrXPathSelector())).sendKeys(Keys.TAB);
+    }
+
+    public void clickElementContent(Target targetLocators) {
+        getDriver().findElement(By.xpath("//span[contains(text(),'Enquiries')]")).click();
+    }
+
+    public void clickNewDeal() {
+        clickElement(HomePageT24Form.NEW_DEAL);
+    }
+
+    public void clickEditAContract() {
+        clickElement(HomePageT24Form.EDIT_A_CONTRACT);
+    }
+
+    public void clickViewAContract() {
+        clickElement(HomePageT24Form.VIEW_A_CONTRACT);
+    }
+
+
+    public void clickPerformAnActionOnTheContract() {
+        clickElement(HomePageT24Form.PERFORM_AN_ACTION_ON_THE_CONTRACT);
+    }
+
+    public void clickCommitTheDeal() {
+        clickElement(HomePageT24Form.COMMIT_THE_DEAL);
+    }
+
+    public void clickValidateTheDeal() {
+        clickElement(HomePageT24Form.VALIDATE_THE_DEAL);
+    }
+
+    public void clickSelectionScreen() {
+        theActorInTheSpotlight().attemptsTo(
+                WaitUntil.the(HomePageT24Form.SELECTION_SCREEN, WebElementStateMatchers.isVisible()),
+                Click.on(HomePageT24Form.SELECTION_SCREEN));
+    }
+
+    public void clickSelectionScreenNew() {
+        getDriver().findElement(By.xpath(HomePageT24Form.SELECTION_SCREEN.getCssOrXPathSelector())).click();
+    }
+
+    public void clickRunSelection() {
+        clickElement(HomePageT24Form.RUN_SELECTION);
+    }
+
+    public void clickLastPage() {
+        clickElement(HomePageT24Form.LAST_PAGE);
+    }
+
+    public void clickSelectionCriteria() {
+        clickElement(HomePageT24Form.SELECTION_CRITERIA);
+    }
+
+    public void clickAuthorisesADeal() {
+        clickElement(HomePageT24Form.AUTHORISES_A_DEAL);
+    }
+
+    public void clickAuthorisesADealAndOverride() {
+        clickElement(HomePageT24Form.AUTHORISES_A_DEAL);
+        if (null != existElement(HomePageT24Form.ACCEPT_OVERRIDES.getCssOrXPathSelector())) {
+            clickElement(HomePageT24Form.ACCEPT_OVERRIDES);
+        }
+    }
+
+    public void clickDeletesADeal() {
+        clickElement(HomePageT24Form.DELETES_A_DEAL);
+    }
+
+    public void clickHold() {
+        clickElement(HomePageT24Form.HOLD);
+    }
+
+    public String getTextOfMessage() {
+        waitVisible(HomePageT24Form.MESSAGE);
+        return Text.of(HomePageT24Form.MESSAGE).viewedBy(theActorInTheSpotlight()).asString();
+    }
+
+    public String getTextOfCaptionError() {
+        waitVisible(HomePageT24Form.CAPTION_ERROR);
+        return Text.of(HomePageT24Form.CAPTION_ERROR).viewedBy(theActorInTheSpotlight()).asString();
+    }
+
+    public String getTextOfMessageWrap() {
+        waitVisible(HomePageT24Form.MESSAGE_WRAP);
+        return Text.of(HomePageT24Form.MESSAGE_WRAP).viewedBy(theActorInTheSpotlight()).asString();
+    }
+
+    public String getTextOfErrorBox() {
+        waitVisible(HomePageT24Form.ERROR_BOX);
+        return Text.of(HomePageT24Form.ERROR_BOX).viewedBy(theActorInTheSpotlight()).asString();
+    }
+
+    public void validateText(Target xpath, String text) {
+        theActorInTheSpotlight().should(
+                seeThat(CommonQuestions.targetText(xpath), equalTo(text))
+        );
+    }
+
+    public void testSQL() throws SQLException, ClassNotFoundException {
+        DataBaseManager dt = new DataBaseManager();
+        dt.selectTestSchema("select t1.* from CIGATEWAY1.TBL_TRANS_OUT_GTW t1 where t1.trx_date = '20200520' AND t1.sd_addr LIKE ('FT20119203620493%')");
+    }
+
+    public String getAttributeElement(String xpath, String attribute) {
+        ActionCommon.printLog("Get Attribute of Element");
+        return getDriver().findElement(By.xpath(xpath)).getAttribute(attribute);
+    }
+
+    public String getText(String xpath) {
+        return getDriver().findElement(By.xpath(xpath)).getText().trim();
+    }
+
+    public List<String> getTexts(String xpath) {
+        List<String> listValue = new ArrayList<>();
+        List<WebElement> webElementList = getDriver().findElements(By.xpath(xpath));
+        for (WebElement webElement : webElementList) {
+            listValue.add(webElement.getText());
+        }
+        return listValue;
+    }
+
+    public void switchToChildWindowsWithContainsTitle(String title) {
+        Set<String> allWindows = getDriver().getWindowHandles();
+
+        for (String runWindow : allWindows) {
+            getDriver().switchTo().window(runWindow);
+//            getDriver().manage().window().maximize();
+            getDriver().manage().window().setPosition(new Point(0, 0));
+            getDriver().manage().window().setSize(new Dimension(1920, 1080));
+            String currentWin = getDriver().getTitle();
+
+            if (currentWin.toLowerCase().contains(title.toLowerCase())) {
+                System.out.println("Switch done!!!!");
+                break;
+            }
+        }
+    }
+
+    public void setValueToExcel(int columnIndex, int rowIndex, String value, String fileName, int... sheetAt) {
+        String path = pathProject + fileName;
+
+        try {
+            FileInputStream file;
+            file = new FileInputStream(new File(path));
+            XSSFSheet sheet;
+
+            XSSFWorkbook workbook = new XSSFWorkbook(file);
+            if (sheetAt.length > 0) {
+                sheet = workbook.getSheetAt(sheetAt[0]); // First sheet
+            } else {
+                sheet = workbook.getSheetAt(0); // First sheet
+            }
+            CellStyle style = workbook.createCellStyle();
+            Font font = workbook.createFont();
+            font.setFontName("Times New Roman"); // set font
+
+            Cell cell;
+            Row row = sheet.getRow(rowIndex);
+            if (row == null) {
+                row = sheet.createRow(rowIndex);
+            }
+            cell = row.createCell(columnIndex, CellType.STRING); // Set type
+
+            style.setFont(font);
+            cell.setCellStyle(style);
+            cell.setCellValue(value);
+
+            file.close();
+            FileOutputStream outFile = new FileOutputStream(new File(path));
+            workbook.write(outFile); // Write excel file
+            outFile.close();
+        } catch (IOException e) {
+            ActionCommon.printLog(messageIoException + e);
+        }
+    }
+
+    public static void updateDataIntoExcel(String value, Integer sheetId, Integer rowIndex, Integer cellIndex, String fileName) {
+        try {
+            String fileInput = pathProject + fileName;
+            FileInputStream file = new FileInputStream(new File(fileInput));
+
+            HSSFWorkbook workbook = new HSSFWorkbook(file);
+            HSSFSheet sheet = workbook.getSheetAt(sheetId);
+            sheet.getRow(rowIndex).getCell(cellIndex, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).setCellValue(value);
+            file.close();
+            FileOutputStream outFile = new FileOutputStream(new File(fileInput));
+            workbook.write(outFile);
+            outFile.close();
+
+        } catch (IOException e) {
+            ActionCommon.printLog(messageIoException + e);
+        }
+    }
+
+    public static void updateDataIntoExcel(String value, String sheetName, Integer rowIndex, Integer cellIndex, String fileName) {
+        try {
+            String fileInput = pathProject + fileName;
+            FileInputStream file = new FileInputStream(new File(fileInput));
+
+            XSSFWorkbook workbook = new XSSFWorkbook(file);
+            XSSFSheet sheet = workbook.getSheet(sheetName);
+            sheet.getRow(rowIndex).getCell(cellIndex, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK).setCellValue(value);
+            file.close();
+            FileOutputStream outFile = new FileOutputStream(new File(fileInput));
+            workbook.write(outFile);
+            outFile.close();
+        } catch (IOException e) {
+            ActionCommon.printLog(messageIoException + e);
+        }
+    }
+
+    public void clickElementByJS(Target targetLocators) {
+        WebElement element = getElement(targetLocators.getCssOrXPathSelector());
+        JavascriptExecutor executor = (JavascriptExecutor) getDriver();
+        executor.executeScript("arguments[0].click();", element);
+    }
+
+    public void doubleClickElement(Target targetLocators) {
+        WebElement element = getElement(targetLocators.getCssOrXPathSelector());
+        Actions action = new Actions(getDriver());
+        action.moveToElement(element).doubleClick().perform();
+    }
+
+    public void createAndWriteTextFile(String text, String fileName, boolean isAppend) {
+        String path = pathTxt + fileName;
+        try (FileWriter writer = new FileWriter(path, isAppend);
+             BufferedWriter bufferedWriter = new BufferedWriter(writer)) {
+            bufferedWriter.write(text);
+        } catch (IOException e) {
+            ActionCommon.printLog(messageIoException + e);
+        }
+    }
+
+    public String readTextFile(String fileName) {
+        String path = pathTxt + fileName;
+        StringBuilder text = new StringBuilder();
+
+        try (FileReader reader = new FileReader(path);
+             BufferedReader bufferedReader = new BufferedReader(reader)) {
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                text.append(line);
+                text.append(System.getProperty("line.separator")); // return \n nếu là unix, \r\n nếu là windows.
+                ActionCommon.printLog(line);
+            }
+        } catch (IOException e) {
+            ActionCommon.printLog(messageIoException + e);
+        }
+        return text.toString();
+    }
+
+    /**
+     * Phương thức này sử dụng để xóa một file bất kỳ.
+     *
+     * @param fileName đường dẫn file muốn delete. Vd: (txt/temp.txt)
+     * @return Nothing
+     * @throws NoSuchFileException        file hoặc thư mục không tồn tại.
+     * @throws DirectoryNotEmptyException nếu tệp là một thư mục, nó không thể bị xóa vì thư mục không trống.
+     * @throws IOException                if an I/O error occurs.
+     */
+    public void deleteFile(String fileName) {
+        String path = pathTxt + fileName;
+        try {
+            Files.deleteIfExists(Paths.get(path));
+        } catch (NoSuchFileException e) {
+            ActionCommon.printLog("No such file/directory exists");
+        } catch (DirectoryNotEmptyException e) {
+            ActionCommon.printLog("Directory is not empty.");
+        } catch (IOException e) {
+            ActionCommon.printLog("Invalid permissions.");
+        }
+        ActionCommon.printLog("Deletion successful.");
+    }
+
+    public static Connection getOracleConnectionBySchema() {
+        return getOracleConnectionBySchema(AccountDB.Dform.HOSTNAME, AccountDB.Dform.SID, AccountDB.Dform.USERNAME, AccountDB.Dform.PASSWORD);
+    }
+
+    public static Connection getOracleConnectionBySchema(String hostName, String schema, String userName, String password) {
+        String connectionURL;
+        try {
+            Class.forName("oracle.jdbc.driver.OracleDriver");
+        } catch (ClassNotFoundException e) {
+            ActionCommon.printLog("ClassNotFoundException: " + e);
+        }
+        connectionURL = "jdbc:oracle:thin:@//" + hostName + ":1521/" + schema;
+        try {
+            return DriverManager.getConnection(connectionURL, userName, password);
+        } catch (SQLException e) {
+            ActionCommon.printLog("SQLException e: " + e);
+        }
+        return null;
+    }
+
+    public List<String> getContentByColumn(String querySQL, String column) {
+        List<String> data = new ArrayList<>();
+        Connection conn = getOracleConnectionBySchema();
+        if (conn != null) {
+            try (Statement statement = conn.createStatement()) {
+                statement.executeQuery(querySQL);
+                try (ResultSet rs = statement.executeQuery(querySQL)) {
+                    while (rs.next()) {
+                        data.add(rs.getString(column));
+                        ActionCommon.printLog(column + ":" + rs.getString(column));
+                    }
+                } catch (SQLException e) {
+                    ActionCommon.printLog("SQLException: " + e);
+                }
+            } catch (SQLException e) {
+                ActionCommon.printLog("SQLException: " + e);
+            }
+        }
+        return data;
+    }
+
+    public void zoomOut() {
+        try {
+            Robot robot = new Robot();
+            robot.keyPress(KeyEvent.VK_CONTROL);
+            robot.keyPress(KeyEvent.VK_MINUS);
+            robot.keyRelease(KeyEvent.VK_CONTROL);
+            robot.keyRelease(KeyEvent.VK_MINUS);
+            pause(3000);
+        } catch (AWTException e) {
+            ActionCommon.printLog("AWTException: " + e);
+        }
+    }
+
+    public void zoomIn() {
+        try {
+            Robot robot = new Robot();
+            robot.keyPress(KeyEvent.VK_CONTROL);
+            robot.keyPress(KeyEvent.VK_EQUALS);
+            robot.keyRelease(KeyEvent.VK_CONTROL);
+            robot.keyRelease(KeyEvent.VK_EQUALS);
+            pause(3000);
+        } catch (AWTException e) {
+            ActionCommon.printLog("AWTException: " + e);
+        }
+    }
+
+    public void switchToMenuT24() {
+        getDriver().switchTo().frame(getDriver().findElement(By.xpath("//frame[contains(@id,'menu')]")));
+    }
+
+    public void openWindowUsingCommandLineT24(String command, String windowTitle) {
+        getDriver().switchTo().frame(getDriver().findElement(By.xpath("//frame[contains(@id,'banner')]")));
+        theActorInTheSpotlight().attemptsTo(Enter.theValue(command).into(HomePageT24Form.COMMANDLINE_TEXTBOX).thenHit(Keys.ENTER));
+        InputToCommandT24.switchToChildWindowsByTitle(windowTitle);
+    }
+
+    public void scrollBarByJs(Target targetLocators) {
+        JavascriptExecutor js = (JavascriptExecutor) getDriver();
+
+        //Find element by link text and store in variable "Element"
+        WebElement element = getElement(targetLocators.getCssOrXPathSelector());
+
+        //This will scroll the page till the element is found
+        js.executeScript("arguments[0].scrollIntoView();", element);
+    }
+
+    public void scrollBarByJs(String xpath) {
+        JavascriptExecutor js = (JavascriptExecutor) getDriver();
+
+        //Find element by link text and store in variable "Element"
+        WebElement element = getElement(xpath);
+
+        //This will scroll the page till the element is found
+        js.executeScript("arguments[0].scrollIntoView();", element);
+    }
+
+    public void clickElementByActions(Target targetLocators) {
+        WebElement element = getElement(targetLocators.getCssOrXPathSelector());
+        Actions actions = new Actions(getDriver());
+        actions.moveToElement(element).click().perform();
+    }
+
+    public void clickElementByHeight(Target targetLocators) {
+        WebElement elementToClick = getElement(targetLocators.getCssOrXPathSelector());
+        // Scroll the browser to the element's Y position
+        ((JavascriptExecutor) getDriver()).executeScript("window.scrollTo(0," + elementToClick.getLocation().y + ")");
+        // Click the element
+        elementToClick.click();
+    }
+
+    public void pause(long miliseconds) {
+        try {
+            Thread.sleep(miliseconds);
+        } catch (InterruptedException e) {
+            ActionCommon.printLog("InterruptedException: " + e);
+            Thread.currentThread().interrupt();
+        }
+    }
+
+
+    public String searchForFileNameContainingSubstring(String substring) {
+        String path = pathTxt;
+        //This is assuming you pass in the substring from input.
+        File file = new File(path); //Change this to the directory you want to search in.
+        String filesContainingSubstring = "";
+
+        if (file.exists() && file.isDirectory()) {
+            String[] files = file.list(); //get the files in String format.
+            assert files != null;
+            for (String fileName : files) {
+                if (fileName.contains(substring)) {
+                    filesContainingSubstring = fileName;
+                    break;
+                }
+            }
+        }
+        return filesContainingSubstring; //return filenames containing substring.
+    }
+
+    public static void updateData(Connection con, String query) {
+        try (Statement stmt = con.createStatement()) {
+            stmt.executeUpdate(query);
+        } catch (SQLException e) {
+            ActionCommon.printLog("SQLException e: " + e);
+        }
+    }
+
+    public String getCurrentDateLocalWithFormat(String formatDate) {
+        SimpleDateFormat format = new SimpleDateFormat(formatDate); //dd-MMM-yy
+        return format.format(new Date());
+    }
+
+
+    public String getTextOf(Target target) {
+        return Text.of(target).viewedBy(theActorInTheSpotlight()).asString();
+    }
+
+    public Iterator<Row> getSheetExcel(String fileName, int... sheetAt) {
+        String path = pathProject + fileName;
+        File file = new File(path);   //creating a new file instance
+        FileInputStream fis;          //obtaining bytes from the file
+        XSSFWorkbook wb;       //creating Workbook instance that refers to .xlsx file
+        XSSFSheet sheet = null;
+
+        try {
+            fis = new FileInputStream(file);
+            wb = new XSSFWorkbook(fis);
+
+            if (sheetAt.length > 0) {
+                sheet = wb.getSheetAt(sheetAt[0]);   //creating a Sheet object to retrieve object
+            } else {
+                sheet = wb.getSheetAt(0);   //creating a Sheet object to retrieve object
+            }
+        } catch (IOException e) {
+            ActionCommon.printLog(messageIoException + e);
+        }
+
+        assert sheet != null;
+        return sheet.iterator();
+    }
+
+    public Iterator<Row> getSheetExcel(String fileName, String sheetName) {
+        String path = pathProject + fileName;
+        File file = new File(path);   //creating a new file instance
+        FileInputStream fis;          //obtaining bytes from the file
+        XSSFWorkbook wb;       //creating Workbook instance that refers to .xlsx file
+        XSSFSheet sheet = null;
+
+        try {
+            fis = new FileInputStream(file);
+            wb = new XSSFWorkbook(fis);
+            sheet = wb.getSheet(sheetName);
+        } catch (IOException e) {
+            ActionCommon.printLog(messageIoException + e);
+        }
+
+        assert sheet != null;
+        return sheet.iterator();
+    }
+
+
+    public String getTab(String field) {
+        if (field.contains("fieldName")) {
+            return field.substring(0, field.indexOf("_"));
+        }
+        if (field.contains("radio")) {
+            String tab = field.substring(field.indexOf("radio:") + 6);
+            return tab.substring(0, tab.indexOf(":"));
+        }
+        if (field.contains("headtab")) {
+            return field.substring(field.indexOf("headtab_") + 8); //headtab_.length = 8
+        }
+        if (field.contains("ExpandMulti")) {
+            // ExpandMulti_mainTab_abc
+            field = field.replace("ExpandMulti_", "");
+            return field.substring(0, field.indexOf("_")); //mainTab_abc = mainTab
+        }
+        return "";
+    }
+
+    public String getIDField(String field) {
+        // ExpandMulti_mainTab_abc
+        if (field.contains("ExpandMulti")) {
+            field = field.replace("ExpandMulti_", "");
+            return field.substring(field.indexOf("_") + 1); //mainTab_abc = abc
+        }
+        return field.contains("fieldName") ? field.substring(field.indexOf("_") + 1) : field;
+    }
+
+    public List<Target> getXpaths(List<String> idFields, List<String> valueFields) {
+        List<Target> listXpath = new ArrayList<>();
+        for (int index = 1; index < idFields.size(); index++) {
+            String tabName = getTab(idFields.get(index));
+            String idField = getIDField(idFields.get(index));
+
+            if (idFields.get(index).contains("fieldName")) {
+                listXpath.add(CustomerComponent.CustomerForm.elementCustomerDynamic(tabName, idField));
+            }
+            if (idFields.get(index).contains("radio")) {
+                listXpath.add(HomePageT24Form.selectRadioButtonByID(tabName, idField, valueFields.get(index - 1)));
+            }
+            if (idFields.get(index).contains("headtab")) {
+                listXpath.add(HomePageT24Form.selectTab(tabName));
+            }
+            if (idFields.get(index).contains("ExpandMulti")) {
+                listXpath.add(HomePageT24Form.clickExpandMulti(tabName, idField));
+            }
+        }
+        return listXpath;
+    }
+
+    public void inputDataActionCommon() {
+        List<Target> listXpath = getXpaths(idFields, valueFields);
+
+        for (int index = 0; index < listXpath.size(); index++) {
+            String tagName;
+            String targetText = listXpath.get(index).getCssOrXPathSelector();
+            String valueField = valueFields.get(index);
+            ActionCommon.printLog(valueField);
+            if (valueField == null || valueField.equals("")) {
+                continue;
+            }
+            if (valueField.equals("clearText")) {
+                pause(1000);
+                getElement(listXpath.get(index).getCssOrXPathSelector()).clear();
+                continue;
+            }
+            if (valueField.equalsIgnoreCase("Today")) {
+                pause(1000);
+                scrollBarByJs(listXpath.get(index));
+                String fieldName = getElement(listXpath.get(index).getCssOrXPathSelector() + "/../..//label//a").getAttribute("textContent"); // Get text field
+                String tabId = getElement(listXpath.get(index).getCssOrXPathSelector() + "/ancestor::tr[contains(@tabid,'tab') or contains(@tabid,'Tab')]").getAttribute("tabid"); // Get tabid
+                HomePageT24Form.selectTodayCalenderDate(tabId, fieldName);
+                continue;
+            }
+            if (targetText.contains("fieldName")) {
+                tagName = getTagName(targetText);
+                if (tagName.equals("input") || tagName.equals("textarea")) { // Thẻ input
+                    typeText(listXpath.get(index), valueField);
+                } else { // Thẻ select
+                    if (valueField.trim().length() == 0) { // textValue == ""
+                        selectIndexOption(listXpath.get(index), 0);
+                    } else {
+                        selectValueOption(listXpath.get(index), valueField); // textValue != ""
+                    }
+                }
+                pressKeys(listXpath.get(index), Keys.TAB);
+            }
+            if (targetText.contains("radio")) {
+                clickElement(listXpath.get(index));
+                pressKeys(listXpath.get(index), Keys.TAB);
+            }
+            if (targetText.contains("headtab") || targetText.contains("Expand Multi Value")) {
+                clickElement(listXpath.get(index));
+            }
+        }
+    }
+
+    public String getTagName(String xpath) {
+        ActionCommon actionCommon = new ActionCommon();
+        WebElement element = actionCommon.getElement(xpath);
+        return element.getTagName();
+    }
+
+    public Iterator<Row> getSheetExcel2(String... values) {
+        String path = pathProject + values[0];
+        File file = new File(path);   //creating a new file instance
+        FileInputStream fis;          //obtaining bytes from the file
+        XSSFWorkbook wb;       //creating Workbook instance that refers to .xlsx file
+        XSSFSheet sheet = null;
+
+        try {
+            fis = new FileInputStream(file);
+            wb = new XSSFWorkbook(fis);
+
+            sheet = wb.getSheet(values[1]);   //creating a Sheet object to retrieve object
+        } catch (IOException e) {
+            ActionCommon.printLog("IOException: " + e);
+        }
+
+        assert sheet != null;
+        return sheet.iterator();
+    }
+
+    /**
+     * Phương thức này sử dụng để copy file
+     *
+     * @param pathSource đường dẫn file muốn copy. Vd: (target/site/serenity/serenity-summary.html)
+     * @param pathDest   đường dẫn tới nơi muốn copy file tới. Vd: (D:/Users/testos02/Desktop/Temp code/serenity-summary.html)
+     * @return Nothing
+     */
+    public void copyFile(String pathSource, String pathDest) {
+        File source = new File(pathSource);
+        File dest = new File(pathDest);
+
+        try {
+            Files.copy(source.toPath(), dest.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            ActionCommon.printLog(messageIoException + e);
+        }
+    }
+
+    public static String getCurrentDateCalendar(String format) {
+        SimpleDateFormat sdfDate = new SimpleDateFormat(format);//dd/MM/yyyy
+        Date now = new Date();
+        return sdfDate.format(now);
+    }
+
+    public Target getErrorByField(String field) {
+        return Target.the("Get error field: " + field).
+                locatedBy("//span[text()='" + field + "']/ancestor::td/following-sibling::td//*[@class='captionError']");
+    }
+
+    public void expandMultiValue(String tabId, String fieldName) {
+        getDriver().findElement(By.xpath("//tr[@tabid='" + tabId + "']//a[contains(text(),'" + fieldName + "')]//parent::label//parent::td//following-sibling::td//a[contains(@title,'Expand')]")).click();
+    }
+
+    public void updateMaPhi(String tabName, String tabId, String prexFieldName, String chargeCodes) {
+        accessTab(tabName);
+        //thuc hien xoa charge code mac dinh
+        List<WebElement> elementList = getDriver().findElements(By.xpath("//tr[@tabid='" + tabId + "']//a[contains(text(),'" + prexFieldName + "')]"));
+        if (elementList.size() > 1) {
+            for (int i = (elementList.size() - 1); i > 0; i--) {
+                getDriver().findElement(By.xpath("//tr[@tabid='" + tabId + "']//a[contains(text(),'" + prexFieldName + "." + (i + 1) + "')]//parent::label//parent::td//following-sibling::td//img[@title = 'Delete Value']")).click();
+            }
+        }
+
+        //nhap moi charge code
+        if (chargeCodes != null && !chargeCodes.equals("")) {
+            List<String> listChargeCodes = Arrays.asList(chargeCodes.split(","));
+            if (!listChargeCodes.isEmpty()) {
+                for (int i = 0; i < listChargeCodes.size(); i++) {
+                    if (i != 0) {
+                        getDriver().findElement(By.xpath("//tr[@tabid='" + tabId + "']//a[contains(text(),'" + prexFieldName + "." + i + "')]//parent::label//parent::td//following-sibling::td//a[contains(@title,'Expand')]")).click();
+                    }
+                    theActorInTheSpotlight().attemptsTo(Scroll.to(HomePageT24Form.inputField(tabId, prexFieldName + "." + (i + 1))));
+                    typeText(HomePageT24Form.inputField(tabId, prexFieldName + "." + (i + 1)), listChargeCodes.get(i));
+                }
+            }
+        }
+    }
+
+    public void updateChargeCodeForDr(String tabName, String tabId, String prexFieldName) {
+        accessTab(tabName);
+        List<WebElement> elementList = getDriver().findElements(By.xpath("//tr[@tabid='" + tabId + "']//a[contains(text(),'" + prexFieldName + "')]"));
+        if (elementList.size() > 0) {
+            for (int i = 0; i < elementList.size(); i++) {
+                if (getTextOf(HomePageT24Form.inputField(tabId, prexFieldName + "." + (i + 1))) != "")
+                    theActorInTheSpotlight().attemptsTo(
+                            SelectFromOptions.byVisibleText("2").from("//tr[@tabid='" + tabId + "']//select[@id='fieldName:CHARGE.STATUS:" + (i + 1) + "']")
+                    );
+            }
+        }
+    }
+
+    public void waitVisible(Target targetLocators, int amount) {
+        theActorInTheSpotlight().attemptsTo(
+                WaitUntil.the(targetLocators, isVisible()).forNoMoreThan(amount).seconds());
+
+    }
+
+    public void clickAcceptReturnToApplicationScreen() {
+        getDriver().findElement(By.xpath(HomePageT24Form.RETURN_TO_APPLICATION_SCREEN.getCssOrXPathSelector())).click();
+        Alert alert = getDriver().switchTo().alert();
+        alert.accept();
+        getDriver().close();
+    }
+
+    public void clickReturnToApplicationScreen() {
+        getDriver().findElement(By.xpath(HomePageT24Form.RETURN_TO_APPLICATION_SCREEN.getCssOrXPathSelector())).click();
+    }
+
+    public String getCurrency(int money) {
+        Locale locale = new Locale("en", "US");
+        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(locale);
+        String currency = currencyFormatter.format(money);
+        currency = currency.replace("$", "");
+        currency = currency.substring(0, currency.indexOf("."));
+        return currency;
+    }
+
+    public String getDateAndAddDate(String day, int... numberDay) {
+        String formatDate = "dd MMM yy";
+        SimpleDateFormat formatter = new SimpleDateFormat(formatDate);
+        Date startDate = getDate(day, formatDate);
+        Date dateOne;
+        if (numberDay.length > 0) {
+            dateOne = DateUtils.addDays(startDate, numberDay[0]); // + numberDay day
+        } else {
+            dateOne = DateUtils.addDays(startDate, 1); // + 1 day
+        }
+        return formatter.format(dateOne);
+    }
+
+    public static void printLog(String message) {
+        // Create a Logger
+        Logger logger = Logger.getLogger(ActionCommon.class.getName());
+
+        // Log messages using log(Level level, String msg)
+        logger.log(Level.INFO, message);
+    }
+
+    /**
+     * Phương thức này thực hiện việc select giá trị text trong thẻ <option> trên html.
+     *
+     * @param xpathExpression Phần xpath locator để xác định vị trí element của thẻ select
+     * @param value           Text cần chọn có trong thẻ <option>
+     * @return Nothing
+     */
+    public void selectValueOption(Target xpathExpression, String value) {
+        Select select = new Select(getElement(xpathExpression.getCssOrXPathSelector()));
+        select.selectByVisibleText(value);
+    }
+
+    public void selectIndexOption(Target xpathExpression, int index) {
+        Select select = new Select(getElement(xpathExpression.getCssOrXPathSelector()));
+        select.selectByIndex(index);
+    }
+
+
+    public int getDaysBetween(String firstDay, String secondDay) {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yy");
+        Date startDate = null;
+        Date endDate = null;
+        try {
+            startDate = formatter.parse(firstDay);
+            endDate = formatter.parse(secondDay);
+        } catch (ParseException e) {
+            ActionCommon.printLog("ParseException: " + e);
+        }
+        assert startDate != null;
+        return Days.daysBetween(new DateTime(startDate), new DateTime(endDate)).getDays();
+    }
+
+    public int getDaysBetween2Date(String firstDay, String secondDay, String format) {
+        SimpleDateFormat formatter = new SimpleDateFormat(format);
+        Date startDate = null;
+        Date endDate = null;
+        try {
+            startDate = formatter.parse(firstDay);
+            endDate = formatter.parse(secondDay);
+        } catch (ParseException e) {
+            ActionCommon.printLog("ParseException: " + e);
+        }
+        assert startDate != null;
+        return Days.daysBetween(new DateTime(startDate), new DateTime(endDate)).getDays();
+    }
+
+    public void pressKeys(Target targetLocator, CharSequence keys) {
+        getElement(targetLocator.getCssOrXPathSelector()).sendKeys(keys);
+    }
+
+    public String getIpAddress() {
+        InetAddress myIP = null;
+        try {
+            myIP = InetAddress.getLocalHost();
+        } catch (UnknownHostException e) {
+            ActionCommon.printLog("UnknownHostException: " + e);
+        }
+
+        assert myIP != null;
+        ActionCommon.printLog(myIP.getHostAddress());
+        return myIP.getHostAddress();
+    }
+
+    /**
+     * Phương thức này thực hiện việc chuyển đổi định dạng ngày tháng năm
+     *
+     * @param value        Chuỗi cần chuyển đổi định dạng
+     * @param formatBefore Chuỗi định dạng của value
+     * @param formatAfter  Chuỗi định dạng cần chuyển sang
+     * @return Giá trị của ngày tháng năm sau khi chuyển đổi
+     */
+    public String convertFormatDate(String value, String formatBefore, String formatAfter) {
+        DateFormat dateFormatBefore = new SimpleDateFormat(formatBefore);
+        DateFormat dateFormatAfter = new SimpleDateFormat(formatAfter);
+        Date date = null;
+        try {
+            date = dateFormatBefore.parse(value);
+        } catch (ParseException e) {
+            ActionCommon.printLog("ParseException: " + e);
+        }
+        assert date != null;
+        return dateFormatAfter.format(date);
+    }
+
+    public void dongVaChuyenVeManHinhHoiSo() {
+        getDriver().close();
+        InputToCommandT24.switchToChildWindowsByTitle("T24 - HOI SO");
+    }
+
+    public long getTimestamp(String formateDate, String valueDate) {
+        DateFormat dateFormat = new SimpleDateFormat(formateDate);
+        Date date = null;
+        try {
+            date = dateFormat.parse(valueDate);
+        } catch (ParseException e) {
+            ActionCommon.printLog("ParseException: " + e);
+        }
+        assert date != null;
+        return date.getTime();
+    }
+
+    public long getTimeStampMoneyMarket(String format, String value) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format, Locale.US);
+        LocalDateTime dateTime = null;
+        dateTime = LocalDateTime.parse(value, formatter);
+        assert dateTime != null;
+        long timeInSeconds = dateTime.toEpochSecond(ZoneOffset.UTC);
+        return timeInSeconds;
+    }
+
+    public void clickEnter(Target target) {
+        getDriver().findElement(By.xpath(target.getCssOrXPathSelector())).sendKeys(Keys.ENTER);
+    }
+
+    public List<Map<String, String>> extractDataTable() {
+        List<Map<String, String>> dataTable = new ArrayList<>();
+        List<WebElement> thHeaders = getDriver().findElements(By.xpath("//table[@id='headingdisplay']/thead/tr/th[@scope='col']"));
+        List<WebElement> trRows = getDriver().findElements(By.xpath("//table[@id='datadisplay']//tr[not(contains(@class,'enqdrilldowncell'))]"));
+
+        for (WebElement el : trRows) {
+            List<WebElement> tdCell = el.findElements(By.xpath("./td"));
+            Map<String, String> rowItem = new HashMap<>();
+
+            for (int i = 0; i < thHeaders.size(); i++) {
+                rowItem.put(thHeaders.get(i).getText().trim(), tdCell.get(i).getText().trim());
+            }
+
+            dataTable.add(rowItem);
+        }
+
+        return dataTable;
+    }
+
+    //    ngocnv add function random id
+    public List<Map<String, String>> extractDataTable1() {
+        List<Map<String, String>> dataTable = new ArrayList<>();
+        List<WebElement> thHeaders = getDriver().findElements(By.xpath("//table[@id='headingdisplay']/thead/tr/th[@scope='col']"));
+        List<WebElement> trRows = getDriver().findElements(By.xpath("//*[@id=\"datadisplay\"]/tbody/tr/td[1]"));
+        int random = (int) (Math.random() * trRows.size());
+        Map<String, String> rowItem = new HashMap<>();
+        rowItem.put(thHeaders.get(0).getText(), trRows.get(random).getText());
+        System.out.println(trRows.get(random).getText());
+        System.out.println(thHeaders.get(0).getText());
+
+        dataTable.add(rowItem);
+
+        return dataTable;
+    }
+
+    public List<Map<String, String>> extractDataTable2() {
+        List<Map<String, String>> dataTable = new ArrayList<>();
+        WebElement thHeaders = getDriver().findElement(By.xpath("(//table[@id='headingdisplay']/thead/tr/th[@scope='col'])[12]"));
+        List<WebElement> trRows = getDriver().findElements(By.xpath("//*[@id=\"datadisplay\"]/tbody/tr/td[12]"));
+        int random = (int) (Math.random() * trRows.size());
+        Map<String, String> rowItem = new HashMap<>();
+        rowItem.put(thHeaders.getText(), trRows.get(random).getText());
+        System.out.println(trRows.get(random).getText());
+        System.out.println(thHeaders.getText());
+
+        dataTable.add(rowItem);
+
+        return dataTable;
+    }
+
+
+    public List<List<String>> getDataSameHeading() {
+        List<List<String>> table = new ArrayList<>();
+
+        List<WebElement> trRows = getDriver().findElements(By.xpath("//table[@id='datadisplay']//tr[not(contains(@class,'enqdrilldowncell'))]"));
+
+        for (WebElement element : trRows) {
+            List<WebElement> tdCell = element.findElements(By.xpath("./td"));
+            List<String> rows = new ArrayList<>();
+            for (WebElement e : tdCell) {
+                rows.add(e.getText());
+            }
+            table.add(rows);
+        }
+        return table;
+    }
+
+    public List<String> finterDataSameHeader(List<Map<String, String>> options) throws Exception {
+//        trả về 1 mảng 2 chiều
+        List<List<String>> table = getDataSameHeading();
+//
+        List<List<String>> filteredTable = new ArrayList<>();
+
+//        Check có điều kiện?
+        if (options.size() == 0) {
+            if (table.size() == 0)
+                return null;
+            return table.get(0);//Trả về hàng đầu tiên của mảng
+        }
+
+//      Lặp các phần từ của từng row {1, 2, 3, 4}
+        for (List<String> row : table) {
+
+            boolean isAdded = true;
+
+            for (Map<String, String> option : options) {
+                int colIndex = Integer.parseInt(option.get("index")); //get giá trị có key = index
+                String valueToFilter = option.get("valueToFilter");
+                String operator = option.get("operator").toUpperCase();
+                String cellValue = row.get(colIndex).trim();// trả lại giá trị với key đã lấy
+
+                isAdded = isDataMatchesWithFilter(operator, cellValue, valueToFilter);
+
+                if (!isAdded)
+                    break;
+            }
+
+            if (isAdded) {
+                filteredTable.add(row);
+            }
+        }
+        if (filteredTable.size() == 0)
+            return null;
+        return filteredTable.get(0);
+    }
+
+    public Map<String, String> filterDataTableAndGetFirstItem(List<Map<String, String>> options) throws Exception {
+        boolean isPresent;
+        Pattern pattern = null;
+        do {
+            List<Map<String, String>> table = extractDataTable();
+            if (options.size() == 0) {
+                if (table.size() == 0)
+                    return null;
+                return table.get(0);
+            }
+            for (Map<String, String> row : table) {
+                boolean isAdded = true;
+                for (Map<String, String> option : options) {
+                    String columnToFilter = option.get("columnName");
+                    String valueToFilter = option.get("valueToFilter");
+                    String operator = option.get("operator").toUpperCase();
+                    String cellValue = row.get(columnToFilter);
+
+                    if (cellValue == null)
+                        throw new Exception("Data của cột '" + columnToFilter + "' đang trả về NULL. Check lại");
+
+                    isAdded = isDataMatchesWithFilter(operator, cellValue, valueToFilter);
+
+                    if (!isAdded) break;
+                }
+                if (isAdded) return row;
+            }
+            isPresent = HomePageT24Form.NEXT_PAGE.resolveFor(theActorInTheSpotlight()).isPresent();
+            if (isPresent) clickElement(HomePageT24Form.NEXT_PAGE);
+        } while (isPresent);
+        return null;
+    }
+
+    public List<Map<String, String>> filterDataTable(List<Map<String, String>> options) throws Exception {
+        List<Map<String, String>> filteredTable = new ArrayList<>();
+
+        boolean isPresent = false;
+        int count = 0;
+        do {
+            // Extract web data table
+            List<Map<String, String>> table = extractDataTable();
+
+            // In case the size of "options" is 0, return the the previous extracted data table
+            if (options.size() == 0) return table;
+
+            if (table.size() == 0) continue;
+
+            // Filter the previous extracted data table based on options which are passed as arguments of this method
+            for (Map<String, String> row : table) {
+                boolean isAdded = true;
+
+                for (Map<String, String> option : options) {
+                    String columnToFilter = option.get("columnName");
+                    String valueToFilter = option.get("valueToFilter");
+                    String operator = option.get("operator").toUpperCase();
+                    String cellValue = row.get(columnToFilter).trim();
+
+                    if (cellValue == null)
+                        throw new Exception("Data của cột '" + columnToFilter + "' đang trả về NULL. Check lại");
+
+                    isAdded = isDataMatchesWithFilter(operator, cellValue, valueToFilter);
+
+                    if (!isAdded)
+                        break;
+                }
+
+                if (isAdded)
+                    filteredTable.add(row);
+            }
+
+            isPresent = HomePageT24Form.NEXT_PAGE.resolveFor(theActorInTheSpotlight()).isPresent();
+            if (isPresent)
+                clickElement(HomePageT24Form.NEXT_PAGE);
+            count++;
+
+        } while (isPresent && count < 5);
+
+        return filteredTable;
+    }
+
+    public String getOneYearDateTimeT24Plus1(String format) throws ParseException {
+        this.searchCommandLineForm("DATES S VN0010001");
+        // open date t24
+        InputToCommandT24.switchToChildWindowsByTitle("DATES");
+        //
+        theActorInTheSpotlight().attemptsTo(
+                WaitUntil.the(T24DATE.TODAY_TIME, isVisible()));
+
+        String currentDate = getDriver().findElement(By.xpath(T24DATE.TODAY_TIME.getCssOrXPathSelector())).getText();
+        //conver String to date
+        SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
+        // DataSwiftTest.date k ảnh hưởng
+        setDate(formatter.parse(currentDate));
+        // convert to string
+
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(getDate());
+        cal.add(Calendar.YEAR, 1);
+        setDate(cal.getTime());
+        SimpleDateFormat dateFormatGmt = new SimpleDateFormat(format);
+        String currentDateT24 = dateFormatGmt.format(getDate());
+
+        return currentDateT24;
+    }
+
+    public String getDataFromASingleField(String fieldName) {
+        WebElement e = getDriver().findElement(By.xpath("//*[@id='fieldName:" + fieldName + "']"));
+        String tag = e.getTagName();
+
+        if (tag.equalsIgnoreCase("select")) {
+            Select select = new Select(e);
+            return select.getFirstSelectedOption().getText().trim();
+        }
+
+        return getAttributeElement("//*[@id='fieldName:" + fieldName + "']", "value").trim();
+    }
+
+    public String changeDataYear(String format, int day) throws ParseException {
+        searchCommandLineForm("DATES S VN0010001");
+        // open date t24
+        InputToCommandT24.switchToChildWindowsByTitle("DATES");
+        //
+        theActorInTheSpotlight().attemptsTo(
+                WaitUntil.the(T24DATE.TODAY_TIME, isVisible()));
+        String currentDate = getDriver().findElement(By.xpath(T24DATE.TODAY_TIME.getCssOrXPathSelector())).getText();
+        //conver String to date
+        SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
+        // DataSwiftTest.date k ảnh hưởng
+
+        ActionCommon.setDate(formatter.parse(currentDate));
+        // convert to string
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(formatter.parse(currentDate));
+        cal.add(Calendar.DAY_OF_WEEK, day);
+
+        if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
+            cal.add(Calendar.DAY_OF_WEEK, day);
+        }
+        if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+            cal.add(Calendar.DAY_OF_WEEK, day);
+        }
+        ActionCommon.setDate(cal.getTime());
+        SimpleDateFormat dateFormatGmt = new SimpleDateFormat(format);
+        String datePlus = dateFormatGmt.format(cal.getTime());
+        Serenity.setSessionVariable("YEAR PLUS").to(datePlus);
+        getDriver().close();
+        return datePlus;
+    }
+
+
+    //FPT
+    public void enterValueIntoFieldThenTab(Target targetLocators, String value) {
+        typeText(targetLocators, value);
+        getDriver().findElement(By.xpath(targetLocators.getCssOrXPathSelector())).sendKeys(TAB);
+    }
+
+    //FPT
+    public void enterValueIntoFieldWithoutKeyword(Target targetLocators, String value) {
+        typeText(targetLocators, value);
+        getDriver().findElement(By.xpath(targetLocators.getCssOrXPathSelector()));
+    }
+
+    public String getCurrentDateTimeT24Minus1(String format) throws ParseException {
+        this.searchCommandLineForm("DATES S VN0010001");
+        // open date t24
+        InputToCommandT24.switchToChildWindowsByTitle("DATES");
+        //
+        theActorInTheSpotlight().attemptsTo(
+                WaitUntil.the(T24DATE.TODAY_TIME, isVisible()));
+        String currentDate = getDriver().findElement(By.xpath(T24DATE.TODAY_TIME.getCssOrXPathSelector())).getText();
+        //conver String to date
+        SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
+        // DataSwiftTest.date k ảnh hưởng
+        setDate(formatter.parse(currentDate));
+        // convert to string
+
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(getDate());
+        cal.add(Calendar.DATE, -1);
+        setDate(cal.getTime());
+        SimpleDateFormat dateFormatGmt = new SimpleDateFormat(format);
+        String currentDateT24 = dateFormatGmt.format(getDate());
+
+        getDriver().close();
+        return currentDateT24;
+    }
+
+    public Date getDate(String valueDate, String formatDate) {
+        SimpleDateFormat formatter = new SimpleDateFormat(formatDate);
+        Date date = null;
+        try {
+            date = formatter.parse(valueDate);
+        } catch (ParseException e) {
+            ActionCommon.printLog("ParseException: " + e);
+        }
+        assert date != null;
+        return date;
+    }
+
+    public Date valueDateAddMonth(String valueDate, String formatDate, int numbersMonth) {
+        Date startDate = getDate(valueDate, formatDate);
+        return DateUtils.addMonths(startDate, numbersMonth); // + months
+    }
+
+    public Date valueDateAddDays(String valueDate, String formatDate, int numbersDays) {
+        Date startDate = getDate(valueDate, formatDate);
+        return DateUtils.addDays(startDate, numbersDays); // + days
+    }
+
+    public String convertMonth(String month) {
+
+        switch (month) {
+            case "JAN":
+                month = "01";
+                break;
+            case "FEB":
+                month = "02";
+                break;
+            case "MAR":
+                month = "03";
+                break;
+            case "APR":
+                month = "04";
+                break;
+            case "MAY":
+                month = "05";
+                break;
+            case "JUN":
+                month = "06";
+                break;
+            case "JUL":
+                month = "07";
+                break;
+            case "AUG":
+                month = "08";
+                break;
+            case "SEP":
+                month = "09";
+                break;
+            case "OCT":
+                month = "10";
+                break;
+            case "NOV":
+                month = "11";
+                break;
+            case "DEC":
+                month = "12";
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + month);
+        }
+        return month;
+    }
+
+    public String getCurrentDateTimeT24Plus(String format) throws ParseException {
+        searchCommandLineForm("DATES S VN0010001");
+        // open date t24
+        InputToCommandT24.switchToChildWindowsByTitle("DATES");
+        //
+        theActorInTheSpotlight().attemptsTo(
+                WaitUntil.the(T24DATE.TODAY_TIME, isVisible()));
+        String currentDate = getDriver().findElement(By.xpath(T24DATE.TODAY_TIME.getCssOrXPathSelector())).getText();
+        //conver String to date
+        SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
+        // DataSwiftTest.date k ảnh hưởng
+        ActionCommon.setDate(formatter.parse(currentDate));
+        // convert to string
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(formatter.parse(currentDate));
+        cal.add(Calendar.YEAR, 1);
+
+        if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
+            cal.add(Calendar.DAY_OF_WEEK, 2);
+        }
+        if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+            cal.add(Calendar.DAY_OF_WEEK, 1);
+        }
+        ActionCommon.setDate(cal.getTime());
+        SimpleDateFormat dateFormatGmt = new SimpleDateFormat(format);
+        String datePlus = dateFormatGmt.format(cal.getTime());
+        Serenity.setSessionVariable("YEAR PLUS").to(datePlus);
+        getDriver().close();
+        return datePlus;
+    }
+
+    public String getAttributeElement(Target targetLocator, String attribute) {
+        ActionCommon.printLog("Get Attribute of Element");
+        return getDriver().findElement(By.xpath(targetLocator.getCssOrXPathSelector())).getAttribute(attribute);
+    }
+
+    public String getTextWithTime(String pre) {
+        return pre + (new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
+    }
+
+    public int getNumInRange(int min, int max) {
+        if (min > max || (max - min + 1 > Integer.MAX_VALUE)) {
+            throw new IllegalArgumentException("Invalid range");
+        }
+
+        // obtain a `SecureRandom` instance and seed the instance with seed bytes
+        // using the generateSeed methodTest.java
+        SecureRandom random = new SecureRandom();
+        random.setSeed(random.generateSeed(20));
+
+        // nextInt() is inherited from class java.util.Random
+        return random.nextInt((max - min) + 1) + min;
+
+    }
+
+    public int getDayBetweenTwoDate(String startDate, String endDate, String format) throws ParseException {
+        SimpleDateFormat myFormat = new SimpleDateFormat(format);
+        int diff = 0;
+        try {
+            Date date1 = myFormat.parse(startDate);
+            Date date2 = myFormat.parse(endDate);
+            diff = (int) (date2.getTime() - date1.getTime());
+        } catch (ParseException e) {
+        }
+        return diff;
+    }
+
+    public String configYear(String date) {
+        Calendar cal = Calendar.getInstance();
+        String time = null;
+        int year = Integer.parseInt(date.substring(0, 1));
+        String para = date.substring(date.length() - 1);
+        setDate(cal.getTime());
+        cal.setTime(getDate());
+        if (para.equals("p")) {
+            cal.add(Calendar.YEAR, -year);
+        } else {
+            cal.add(Calendar.YEAR, year);
+        }
+        setDate(cal.getTime());
+        SimpleDateFormat dateFormatGmt = new SimpleDateFormat("yyyyMMdd");
+        time = dateFormatGmt.format(getDate());
+        Serenity.recordReportData().withTitle("Time:").andContents(time);
+        return time;
+    }
+
+    public String getTextFromRecordViewSpan(String fieldName) {
+        return getText("//label[@for='fieldName:" + fieldName + "']/parent::td/following-sibling::td/span[contains(@class, 'disabled_dealbox')]");
+    }
+
+    public List<String> getListOfTextFromRecordViewSpan(String fieldName) {
+        return getTexts("//label[@for='fieldName:" + fieldName + "']/parent::td/following-sibling::td/span[contains(@class, 'disabled_dealbox')]");
+    }
+
+    /**
+     * Phương thức này thực hiện các bước để nhập 1 giá trị vàoCbsRtCanhBaoNghNuqSuite
+     * ô input transaction id và click vào button Perform an action
+     *
+     * @param value Giá trị, mã số, hoặc id... cần xem.
+     * @return Nothing
+     */
+    public void performAContract(String value) {
+        switchToDefaultContent();
+        typeText(HomePageT24Form.TRANSACTION_ID, value);
+        clickElement(HomePageT24Form.PERFORM_AN_ACTION_ON_THE_CONTRACT);
+    }
+
+    /**
+     * FPT
+     * lấy date time today của T24 add thên n years
+     */
+    public String getDateTimeT24AddYears(String currentDate, String format, int year) throws ParseException {
+        //conver String to date
+        SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
+        // DataSwiftTest.date k ảnh hưởng
+        setDate(formatter.parse(currentDate));
+        // convert to string
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(getDate());
+        cal.add(Calendar.YEAR, year);
+        setDate(cal.getTime());
+        SimpleDateFormat dateFormatGmt = new SimpleDateFormat(format);
+        String currentDateT24 = dateFormatGmt.format(getDate());
+
+        return currentDateT24;
+    }
+
+    public String getDateTimeT24AddMonths(String currentDate, String format, int year) throws ParseException {
+        //conver String to date
+        SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
+        // DataSwiftTest.date k ảnh hưởng
+        setDate(formatter.parse(currentDate));
+        // convert to string
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(getDate());
+        cal.add(Calendar.MONTH, year);
+        setDate(cal.getTime());
+        SimpleDateFormat dateFormatGmt = new SimpleDateFormat(format);
+        String currentDateT24 = dateFormatGmt.format(getDate());
+
+        return currentDateT24;
+    }
+
+    public String getDateTimeT24AddDays(String currentDate, String format, int num) throws ParseException {
+        //conver String to date
+        SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
+        // DataSwiftTest.date k ảnh hưởng
+        setDate(formatter.parse(currentDate));
+        // convert to string
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(getDate());
+        cal.add(Calendar.DATE, num);
+        setDate(cal.getTime());
+        SimpleDateFormat dateFormatGmt = new SimpleDateFormat(format);
+        String currentDateT24 = dateFormatGmt.format(getDate());
+
+        return currentDateT24;
+    }
+
+    public String getDateTimeT24() {
+        this.searchCommandLineForm("DATES S VN0010001");
+        // open date t24
+        InputToCommandT24.switchToChildWindowsByTitle("DATES");
+        //
+        theActorInTheSpotlight().attemptsTo(
+                WaitUntil.the(T24DATE.TODAY_TIME, isVisible()));
+
+        String currentDate = getDriver().findElement(By.xpath(T24DATE.TODAY_TIME.getCssOrXPathSelector())).getText();
+
+        return currentDate;
+    }
+
+    //FPT
+    public String getCurrentDateTimeT24Minus(String format, int days) throws ParseException {
+        this.searchCommandLineForm("DATES S VN0010001");
+
+        // open date t24
+        InputToCommandT24.switchToChildWindowsByTitle("DATES");
+        //
+        theActorInTheSpotlight().attemptsTo(
+                WaitUntil.the(T24DATE.TODAY_TIME, isVisible()));
+
+        String currentDate = getDriver().findElement(By.xpath(T24DATE.TODAY_TIME.getCssOrXPathSelector())).getText();
+        //conver String to date
+        SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
+        // DataSwiftTest.date k ảnh hưởng
+        setDate(formatter.parse(currentDate));
+        // convert to string
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(formatter.parse(currentDate));
+        cal.add(Calendar.DATE, -days);
+        setDate(cal.getTime());
+        SimpleDateFormat dateFormatGmt = new SimpleDateFormat(format);
+        String dateMinus = dateFormatGmt.format(cal.getTime());
+        Serenity.setSessionVariable("DATE MINUS " + days).to(dateMinus);
+
+        getDriver().close();
+        return dateMinus;
+    }
+
+    //FPT
+    public String getNextSunday(String format) throws ParseException {
+        this.searchCommandLineForm("DATES S VN0010001");
+
+        // open date t24
+        InputToCommandT24.switchToChildWindowsByTitle("DATES");
+        //
+        theActorInTheSpotlight().attemptsTo(
+                WaitUntil.the(T24DATE.TODAY_TIME, isVisible()));
+
+        String currentDate = getDriver().findElement(By.xpath(T24DATE.TODAY_TIME.getCssOrXPathSelector())).getText();
+        //conver String to date
+        SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
+        // DataSwiftTest.date k ảnh hưởng
+        setDate(formatter.parse(currentDate));
+        // convert to string
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(formatter.parse(currentDate));
+
+        if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY) {
+            cal.add(Calendar.DATE, 6);
+        }
+        if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.TUESDAY) {
+            cal.add(Calendar.DATE, 5);
+        }
+        if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.WEDNESDAY) {
+            cal.add(Calendar.DATE, 4);
+        }
+        if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.THURSDAY) {
+            cal.add(Calendar.DATE, 3);
+        }
+        if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.FRIDAY) {
+            cal.add(Calendar.DATE, 2);
+        }
+        if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
+            cal.add(Calendar.DATE, 1);
+        }
+        if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+            cal.add(Calendar.DATE, 7);
+        }
+        setDate(cal.getTime());
+        SimpleDateFormat dateFormatGmt = new SimpleDateFormat(format);
+        String nextSunday = dateFormatGmt.format(cal.getTime());
+        Serenity.setSessionVariable("Next Sunday").to(nextSunday);
+        getDriver().close();
+        return nextSunday;
+    }
+
+    //FPT_ANHDTN6
+    public String getPlusDate(String beforeDate, String beforeFormat, int day, String afterFormat) throws
+            ParseException {
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat formatter = new SimpleDateFormat(beforeFormat);
+
+        setDate(formatter.parse(beforeDate));
+        cal.setTime(getDate());
+        cal.add(Calendar.DATE, day);
+        setDate(cal.getTime());
+        SimpleDateFormat dateFormatGmt = new SimpleDateFormat(afterFormat);
+        String afterDate = dateFormatGmt.format(getDate());
+
+        Serenity.recordReportData().withTitle("afterDateTime:").andContents(afterDate);
+        return afterDate;
+    }
+
+
+    public String getPlusMonth(String beforeDate, String beforeFormat, int month, String afterFormat) throws
+            ParseException {
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat formatter = new SimpleDateFormat(beforeFormat);
+
+        setDate(formatter.parse(beforeDate));
+        cal.setTime(getDate());
+        cal.add(Calendar.MONTH, month);
+        setDate(cal.getTime());
+        SimpleDateFormat dateFormatGmt = new SimpleDateFormat(afterFormat);
+        String afterDate = dateFormatGmt.format(getDate());
+
+        Serenity.recordReportData().withTitle("afterDateTime:").andContents(afterDate);
+        return afterDate;
+    }
+
+    public void switchToFrameByContainsIdFrame(String containsIdFrame) {
+        String iframeXpath = "//frame[contains(@id,'" + containsIdFrame + "')]";
+        Target iframe = Target.the(containsIdFrame + " frame").locatedBy(iframeXpath);
+        waitVisible(iframe);
+        getDriver().switchTo().frame(getElement(iframeXpath));
+    }
+
+    public String doiDATE(String date_time) {
+        LocalDate parsedDate = LocalDate.parse(
+                date_time,
+                new DateTimeFormatterBuilder()
+                        .parseCaseInsensitive()
+                        .appendPattern("dd MMM uuuu")
+                        .toFormatter(Locale.US)
+        );
+        DateTimeFormatter newFormat = DateTimeFormatter.ISO_DATE;
+        return parsedDate.format(newFormat);
+    }
+
+    //FPT
+    public String getWorkingDay(String format, int days) throws ParseException {
+        this.searchCommandLineForm("DATES S VN0010001");
+
+        // open date t24
+        InputToCommandT24.switchToChildWindowsByTitle("DATES");
+        //
+        theActorInTheSpotlight().attemptsTo(
+                WaitUntil.the(T24DATE.TODAY_TIME, isVisible()));
+
+        String currentDate = getDriver().findElement(By.xpath(T24DATE.TODAY_TIME.getCssOrXPathSelector())).getText();
+        //conver String to date
+        SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
+        // DataSwiftTest.date k ảnh hưởng
+        setDate(formatter.parse(currentDate));
+        // convert to string
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(formatter.parse(currentDate));
+        cal.add(Calendar.DATE, days);
+
+        if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY && days > 0) {
+            cal.add(Calendar.DATE, 2);
+        }
+        if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY && days > 0) {
+            cal.add(Calendar.DATE, 1);
+        }
+        if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY && days < 0) {
+            cal.add(Calendar.DATE, -2);
+        }
+        if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY && days < 0) {
+            cal.add(Calendar.DATE, -1);
+        }
+
+        setDate(cal.getTime());
+        SimpleDateFormat dateFormatGmt = new SimpleDateFormat(format);
+        String workingDay = dateFormatGmt.format(cal.getTime());
+        Serenity.setSessionVariable("workingDay").to(workingDay);
+        getDriver().close();
+        return workingDay;
+    }
+
+    public boolean isDataMatchesWithFilter(String operand, String dataCell, String valueToFilter) throws Exception {
+        String cellAsString;
+        Double valueInDouble;
+        boolean isMatch = false;
+
+        switch (operand.toUpperCase()) {
+            case "EQUAL":
+                if (valueToFilter.contains("|")) {
+                    for (String splittedVal : valueToFilter.split("\\|")) {
+                        isMatch = dataCell.trim().equals(splittedVal);
+
+                        if (isMatch) break;
+                    }
+                } else if (valueToFilter.contains("^")) {
+                    for (String splittedVal : valueToFilter.split("\\^")) {
+                        isMatch = dataCell.trim().equals(splittedVal);
+
+                        if (isMatch) break;
+                    }
+                } else {
+                    isMatch = dataCell.equals(valueToFilter);
+                }
+                break;
+
+            case "GREATER":
+                try {
+                    cellAsString = dataCell.replace(",", "");
+                    valueInDouble = dataCell.equals("") ? 0 : Double.parseDouble(cellAsString);
+                    isMatch = valueInDouble > Double.parseDouble(valueToFilter);
+                } catch (Exception e) {
+                    isMatch = false;
+                }
+                break;
+
+            case "SMALLER":
+                try {
+                    cellAsString = dataCell.replace(",", "");
+                    valueInDouble = cellAsString.equals("") ? 0 : Double.parseDouble(cellAsString);
+                    isMatch = valueInDouble < Double.parseDouble(valueToFilter);
+                } catch (Exception e) {
+                    isMatch = false;
+                }
+                break;
+
+            case "NOT_EQUAL":
+                if (valueToFilter.contains("&")) {
+                    for (String splittedVal : valueToFilter.split("&")) {
+                        isMatch = !dataCell.equals(splittedVal);
+
+                        if (!isMatch) break;
+                    }
+                } else {
+                    isMatch = !dataCell.equals(valueToFilter);
+                }
+                break;
+
+            case "NOT_INCLUDE":
+                isMatch = !dataCell.contains(valueToFilter);
+                break;
+
+            case "INCLUDE":
+                isMatch = dataCell.contains(valueToFilter);
+                break;
+
+            case "REGEX":
+                Pattern pattern = Pattern.compile(valueToFilter);
+                isMatch = pattern.matcher(dataCell).matches();
+                break;
+
+            case "NOT_START_WITH":
+                if (valueToFilter.contains("&")) {
+                    for (String splittedVal : valueToFilter.split("&")) {
+                        isMatch = !dataCell.startsWith(splittedVal);
+
+                        if (!isMatch) break;
+                    }
+                } else {
+                    isMatch = !dataCell.startsWith(valueToFilter);
+                }
+                break;
+            case "START_WITH":
+                isMatch = dataCell.startsWith(valueToFilter);
+                break;
+            case "DATE_BEFORE":
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+                isMatch = sdf.parse(dataCell).before(sdf.parse(valueToFilter));
+                break;
+            case "DATE_AFTER":
+                SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMdd");
+                isMatch = sdf1.parse(dataCell).after(sdf1.parse(valueToFilter));
+                break;
+            case "END_WITH":
+                isMatch = dataCell.endsWith(valueToFilter);
+                break;
+            case "NOT_END_WITH":
+                isMatch = !dataCell.endsWith(valueToFilter);
+                break;
+            case "GREATER_THAN":
+                try {
+                    cellAsString = dataCell.replace(",", "");
+                    valueInDouble = dataCell.equals("") ? 0 : Double.parseDouble(cellAsString);
+                    isMatch = valueInDouble >= Double.parseDouble(valueToFilter);
+                } catch (Exception e) {
+                    isMatch = false;
+                }
+                break;
+
+            case "LESS_THAN":
+                try {
+                    cellAsString = dataCell.replace(",", "");
+                    valueInDouble = cellAsString.equals("") ? 0 : Double.parseDouble(cellAsString);
+                    isMatch = valueInDouble <= Double.parseDouble(valueToFilter);
+                } catch (Exception e) {
+                    isMatch = false;
+                }
+                break;
+            default:
+                throw new Exception("Current operator is not valid: " + operand);
+        }
+
+        return isMatch;
+    }
+
+    public void clearPreviousSearchKey() {
+        List<WebElement> inputSearchFields = getDriver().findElements(By.xpath("//input[contains(@id, 'value') and not(@value='')]"));
+
+        // Clear text from all search inputs in case they are cached
+        for (WebElement e : inputSearchFields) {
+            e.clear();
+        }
+    }
+
+    //FPT
+    public List<Map<String, String>> filterDataTableThenGetAll(List<Map<String, String>> options, int num) throws Exception {
+        List<Map<String, String>> filteredTable = new ArrayList<>();
+
+        boolean isPresent = false;
+        int count = 0;
+        do {
+            // Extract web data table
+            List<Map<String, String>> table = extractDataTable();
+
+            // Filter the previous extracted data table based on options which are passed as arguments of this method
+            for (Map<String, String> row : table) {
+                boolean isAdded = true;
+
+                for (Map<String, String> option : options) {
+                    String columnToFilter = option.get("columnName");
+                    String valueToFilter = option.get("valueToFilter");
+                    String operator = option.get("operator").toUpperCase();
+                    String cellValue = row.get(columnToFilter).trim();
+
+                    isAdded = isDataMatchesWithFilter(operator, cellValue, valueToFilter);
+
+                    if (!isAdded)
+                        break;
+                }
+
+                if (isAdded)
+                    filteredTable.add(row);
+            }
+
+            isPresent = HomePageT24Form.NEXT_PAGE.resolveFor(theActorInTheSpotlight()).isPresent();
+            if (isPresent) clickElement(HomePageT24Form.NEXT_PAGE);
+            count++;
+        } while (isPresent && count < num);
+
+        return filteredTable;
+    }
+
+    public void typeTextAndTab(Target targetLocators, String value) {
+        typeText(targetLocators, value);
+        pressKeys(targetLocators, Keys.TAB);
+    }
+
+    public void clickElementAndTab(Target targetLocators) {
+        clickElement(targetLocators);
+        pressKeys(targetLocators, Keys.TAB);
+    }
+
+    //FPT
+    public Map<String, String> filterDataTableAndGetItemInIndex(List<Map<String, String>> options, int index) throws Exception {
+        boolean isPresent;
+        do {
+            List<Map<String, String>> table = extractDataTable();
+            if (options.size() == 0) {
+                if (table.size() == 0)
+                    return null;
+                return table.get(index);
+            }
+            for (Map<String, String> row : table) {
+                Double valueInDouble;
+                boolean isAdded = true;
+                for (Map<String, String> option : options) {
+                    String columnToFilter = option.get("columnName");
+                    String valueToFilter = option.get("valueToFilter");
+                    String operator = option.get("operator").toUpperCase();
+                    String cellValue = row.get(columnToFilter).trim();
+                    String cellAsString;
+
+                    switch (operator) {
+                        case "EQUAL":
+                            if (valueToFilter.contains("|")) {
+                                for (String splittedVal : valueToFilter.split("\\|")) {
+                                    isAdded = cellValue.equals(splittedVal);
+
+                                    if (isAdded)
+                                        break;
+                                }
+                            } else {
+                                isAdded = cellValue.equals(valueToFilter);
+                            }
+                            break;
+                        case "GREATER":
+                            try {
+                                cellAsString = cellValue.replace(",", "");
+                                valueInDouble = cellAsString.equals("") ? 0 : Double.parseDouble(cellAsString);
+                                isAdded = valueInDouble > Double.parseDouble(valueToFilter);
+                            } catch (Exception e) {
+                                isAdded = false;
+                            }
+                            break;
+                        case "SMALLER":
+                            try {
+                                cellAsString = cellValue.replace(",", "");
+                                valueInDouble = cellAsString.equals("") ? 0 : Double.parseDouble(cellAsString);
+                                isAdded = valueInDouble < Double.parseDouble(valueToFilter);
+                            } catch (Exception e) {
+                                isAdded = false;
+                            }
+                            break;
+                        case "NOT_EQUAL":
+                            if (valueToFilter.contains("&")) {
+                                for (String splittedVal : valueToFilter.split("&")) {
+                                    isAdded = !cellValue.equals(splittedVal);
+
+                                    if (!isAdded)
+                                        break;
+                                }
+                            } else {
+                                isAdded = !cellValue.equals(valueToFilter);
+                            }
+                            break;
+                        case "INCLUDE":
+                            isAdded = cellValue.contains(valueToFilter);
+                            break;
+                        case "NOT_INCLUDE":
+                            isAdded = !cellValue.contains(valueToFilter);
+                            break;
+                        case "REGEX":
+                            Pattern pattern = Pattern.compile("^[0-9]\\d*\\.[0-9]{2}\\.[0-9]{3}.[0-9]{7}.TD$");
+                            isAdded = pattern.matcher(cellValue).matches();
+                            break;
+
+                        default:
+                            throw new Exception("Current operator is not valid: " + operator);
+                    }
+                    if (!isAdded) break;
+                }
+                if (isAdded) return row;
+            }
+            isPresent = HomePageT24Form.NEXT_PAGE.resolveFor(theActorInTheSpotlight()).isPresent();
+            if (isPresent) clickElement(HomePageT24Form.NEXT_PAGE);
+        } while (isPresent);
+        return null;
+    }
+
+    //FPT
+    public List<Map<String, String>> filterDataTableThenGetAllFromBack(List<Map<String, String>> options, int num) throws Exception {
+        List<Map<String, String>> filteredTable = new ArrayList<>();
+
+        if (HomePageT24Form.LAST_PAGE.resolveFor(theActorInTheSpotlight()).isPresent()) {
+            clickElement(HomePageT24Form.LAST_PAGE);
+        }
+        boolean isPresent = false;
+        int count = 0;
+        do {
+            // Extract web data table
+            List<Map<String, String>> table = extractDataTable();
+
+            // Filter the previous extracted data table based on options which are passed as arguments of this method
+            for (Map<String, String> row : table) {
+                boolean isAdded = true;
+
+                for (Map<String, String> option : options) {
+                    String columnToFilter = option.get("columnName");
+                    String valueToFilter = option.get("valueToFilter");
+                    String operator = option.get("operator").toUpperCase();
+                    String cellValue = row.get(columnToFilter).trim();
+
+                    isAdded = isDataMatchesWithFilter(operator, cellValue, valueToFilter);
+
+                    if (!isAdded)
+                        break;
+                }
+
+                if (isAdded)
+                    filteredTable.add(row);
+            }
+
+            isPresent = HomePageT24Form.PREVIOUS_PAGE.resolveFor(theActorInTheSpotlight()).isPresent();
+            if (isPresent) clickElement(HomePageT24Form.PREVIOUS_PAGE);
+            count++;
+        } while (isPresent && count < num);
+
+        return filteredTable;
+    }
+
+    //FPT
+    public void enterValueIntoFieldWithOperator(Target targetOperator, String operator, Target targetLocators, String value) {
+        selectValueOption(targetOperator, operator);
+        getDriver().findElement(By.xpath(targetOperator.getCssOrXPathSelector()));
+        typeText(targetLocators, value);
+        getDriver().findElement(By.xpath(targetLocators.getCssOrXPathSelector())).sendKeys(ENTER);
+    }
+
+    //FPT
+    public void enterValueIntoFieldWithOperatorThenTab(Target targetOperator, String operator, Target targetLocators, String value) {
+        selectValueOption(targetOperator, operator);
+        getDriver().findElement(By.xpath(targetOperator.getCssOrXPathSelector()));
+        typeText(targetLocators, value);
+        getDriver().findElement(By.xpath(targetLocators.getCssOrXPathSelector())).sendKeys(TAB);
+    }
+
+    public List<String> filterDataSameHeaderGetRandom(List<Map<String, String>> options) throws Exception {
+//        trả về 1 mảng 2 chiều
+        List<List<String>> table = getDataSameHeading();
+//
+        List<List<String>> filteredTable = new ArrayList<>();
+//        Check có điều kiện?
+        if (options.size() == 0) {
+            if (table.size() == 0)
+                return null;
+            return table.get(0);//Trả về hàng đầu tiên của mảng
+        }
+//      Lặp các phần từ của từng row {1, 2, 3, 4}
+        for (List<String> row : table) {
+
+            boolean isAdded = true;
+
+            for (Map<String, String> option : options) {
+                int colIndex = Integer.parseInt(option.get("index")); //get giá trị có key = index
+                String valueToFilter = option.get("valueToFilter");
+                String operator = option.get("operator").toUpperCase();
+                String cellValue = row.get(colIndex).trim();// trả lại giá trị với key đã lấy
+
+                isAdded = isDataMatchesWithFilter(operator, cellValue, valueToFilter);
+
+                if (!isAdded)
+                    break;
+            }
+
+            if (isAdded) {
+                filteredTable.add(row);
+            }
+        }
+        if (filteredTable.size() == 0)
+            return null;
+        int index = 0;
+        Random rand = SecureRandom.getInstanceStrong();
+        if (filteredTable.size() > 1) {
+            index = rand.nextInt(filteredTable.size() - 1);
+        } else if (filteredTable.size() == 1) {
+            index = 0;
+        }
+        return filteredTable.get(index);
+    }
+
+
+    // FPT_ANHDTN6
+    public List<Map<String, String>> extractItemDataTable() {
+        List<Map<String, String>> dataTable = new ArrayList<>();
+        List<WebElement> thHeaders = getDriver().findElements(By.xpath("//table[@id='headingdisplay']/thead/tr/th[@scope='col']"));
+        List<WebElement> trRows = getDriver().findElements(By.xpath("//table[@id='datadisplay']//tr[not(contains(@class,'enqdrilldowncell'))]"));
+        int count = 0;
+        for (WebElement el : trRows) {
+            List<WebElement> tdCell = el.findElements(By.xpath("./td"));
+            Map<String, String> rowItem = new HashMap<>();
+
+            for (int i = 0; i < thHeaders.size(); i++) {
+                rowItem.put(thHeaders.get(i).getText().trim(), tdCell.get(i).getText().trim());
+            }
+
+            dataTable.add(rowItem);
+            count++;
+            if (count == 20) {
+                break;
+            }
+        }
+
+        return dataTable;
+    }
+
+    public List<Map<String, String>> filterDataTableAndGetFirstPage(List<Map<String, String>> options) throws Exception {
+        List<Map<String, String>> filteredTable = new ArrayList<>();
+        boolean isPresent = false;
+        int count = 0;
+        // Extract web data table
+        List<Map<String, String>> table = extractDataTable();
+
+        // In case the size of "options" is 0, return the the previous extracted data table
+        if (options.size() == 0) {
+            return table;
+        }
+
+        // Filter the previous extracted data table based on options which are passed as arguments of this method
+        for (Map<String, String> row : table) {
+            boolean isAdded = true;
+
+            for (Map<String, String> option : options) {
+                String columnToFilter = option.get("columnName");
+                String valueToFilter = option.get("valueToFilter");
+                String operator = option.get("operator").toUpperCase();
+                String cellValue = row.get(columnToFilter).trim();
+
+                isAdded = isDataMatchesWithFilter(operator, cellValue, valueToFilter);
+
+                if (!isAdded)
+                    break;
+            }
+
+            if (isAdded) {
+                filteredTable.add(row);
+
+            }
+            /*
+            Code ko tăng biến count
+            if (count == 20) {
+                break;
+            }
+
+             */
+
+        }
+        return filteredTable;
+    }
+
+    public long getMenhGia(String strMenhGia) {
+        strMenhGia = strMenhGia.replaceAll("\\.", "").replaceAll("[^0-9]", ",");
+        String[] menhGias = strMenhGia.split(",");
+        long menhGia = 0;
+        for (String item : menhGias) {
+            if (StringUtils.isNumeric(item)) {
+                menhGia = Long.parseLong(item);
+            }
+        }
+        return menhGia;
+    }
+
+    public static String generateRandomWeek() {
+        String[] partenString = {"1W", "2W", "3W", "4W", "5W", "6W", "7W"};
+        Random generator = null;
+        int index = 0;
+        try {
+            generator = SecureRandom.getInstanceStrong();
+            if (partenString.length > 0) {
+                int max = partenString.length - 1;
+                int min = 0;
+                index = generator.nextInt(max - min + 1) + min;
+            } else {
+                try {
+                    throw new Exception("không tìm được giá trị trong drop list");
+                } catch (Exception e) {
+
+                }
+            }
+        } catch (NoSuchAlgorithmException e) {
+        }
+        return partenString[index];
+    }
+
+    public static String generateRandomDacBiet() {
+        String[] partenString = {"SW", "FW"};
+        Random generator = null;
+        int index = 0;
+        try {
+            generator = SecureRandom.getInstanceStrong();
+            if (partenString.length > 0) {
+                int max = partenString.length - 1;
+                int min = 0;
+                index = generator.nextInt(max - min + 1) + min;
+            } else {
+                try {
+                    throw new Exception("không tìm được giá trị trong drop list");
+                } catch (Exception e) {
+
+                }
+            }
+        } catch (NoSuchAlgorithmException e) {
+        }
+        return partenString[index];
+    }
+
+    public static String generateRandomDacBietSwith() {
+        String[] partenString = {"HO", "CTQT", "KVPN"};
+        Random generator = null;
+        int index = 0;
+        try {
+            generator = SecureRandom.getInstanceStrong();
+            if (partenString.length > 0) {
+                int max = partenString.length - 1;
+                int min = 0;
+                index = generator.nextInt(max - min + 1) + min;
+            } else {
+                try {
+                    throw new Exception("không tìm được giá trị trong drop list");
+                } catch (Exception e) {
+
+                }
+            }
+        } catch (NoSuchAlgorithmException e) {
+        }
+        return partenString[index];
+    }
+
+    public void generateRandomNotCTQT_HO_KVPN() {
+        String text = CustomerMdtIndiv3Definitions.generateRandomString(8);
+        if(text.equals("HO") || text.equals("CTQT") || text.equals("KVPN")){
+            text = text+ "H";
+        }
+        setValueSection("generateRandomNotCTQT_HO_KVPN", text);
+    }
+
+
+    //FPT_AnhDTN6
+    public List<List<String>> filterDataSameHeader(List<Map<String, String>> options) throws Exception {
+//        trả về 1 mảng 2 chiều
+        List<List<String>> table = getDataSameHeading();
+//
+        List<List<String>> filteredTable = new ArrayList<>();
+//        Check có điều kiện?
+        if (options.size() == 0) {
+            if (table.size() == 0)
+                return null;
+            return table;//Trả về hàng đầu tiên của mảng
+        }
+//      Lặp các phần từ của từng row {1, 2, 3, 4}
+        for (List<String> row : table) {
+
+            boolean isAdded = true;
+
+            for (Map<String, String> option : options) {
+                int colIndex = Integer.parseInt(option.get("index")); //get giá trị có key = index
+                String valueToFilter = option.get("valueToFilter");
+                String operator = option.get("operator").toUpperCase();
+                String cellValue = row.get(colIndex).trim();// trả lại giá trị với key đã lấy
+
+                isAdded = isDataMatchesWithFilter(operator, cellValue, valueToFilter);
+
+                if (!isAdded)
+                    break;
+            }
+
+            if (isAdded) {
+                filteredTable.add(row);
+            }
+        }
+        if (filteredTable.size() == 0)
+            return null;
+
+        return filteredTable;
+    }
+
+    //FPT_DuongNT55
+    public List<List<String>> filterDataSameHeaderThenGetAll(List<Map<String, String>> options, int num) throws Exception {
+//        trả về 1 mảng 2 chiều
+        List<List<String>> table = getDataSameHeading();
+//
+        List<List<String>> filteredTable = new ArrayList<>();
+//        Check có điều kiện?
+        if (options.size() == 0) {
+            if (table.size() == 0)
+                return null;
+            return table;//Trả về hàng đầu tiên của mảng
+        }
+        boolean isPresent = false;
+        int count = 0;
+        do {
+//      Lặp các phần từ của từng row {1, 2, 3, 4}
+            for (List<String> row : table) {
+
+                boolean isAdded = true;
+
+                for (Map<String, String> option : options) {
+                    int colIndex = Integer.parseInt(option.get("index")); //get giá trị có key = index
+                    String valueToFilter = option.get("valueToFilter");
+                    String operator = option.get("operator").toUpperCase();
+                    String cellValue = row.get(colIndex).trim();// trả lại giá trị với key đã lấy
+
+                    isAdded = isDataMatchesWithFilter(operator, cellValue, valueToFilter);
+
+                    if (!isAdded)
+                        break;
+                }
+
+                if (isAdded) {
+                    filteredTable.add(row);
+                }
+            }
+            isPresent = HomePageT24Form.NEXT_PAGE.resolveFor(theActorInTheSpotlight()).isPresent();
+            if (isPresent) clickElement(HomePageT24Form.NEXT_PAGE);
+            count++;
+        } while (isPresent && count < num);
+
+
+        return filteredTable;
+    }
+
+    //AnhDTN6
+    public boolean compareTwoDate(String date1, String date2) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
+        Date date11 = formatter.parse(date1);
+        Date date22 = formatter.parse(date2);
+        return date11.after(date22);
+    }
+
+    /**
+     * DESCRIPTION: Check if the input text is a name of session variable to retrieve the correct value
+     *
+     * @param text
+     * @return {String}
+     */
+    public String retrieveSessionVariableValueFromText(String text) {
+        // Convert the session variable which is storing Map value
+        Map<String, String> record = Serenity.sessionVariableCalled("record");
+
+        if (record != null && null != record.get(text)) {
+            // Retrieve value of a key named "text" from Session Variable with Map<String, String> type named "record"
+            text = record.get(text);
+        } else if (text.contains("replace_")) {
+            do {
+                // Retrieve value which is replaced the pattern with format "%text%replace_session-variable-name_%text%"
+                String textToBeReplaced = text.split("_")[1];
+                text = text.replace("replace_" + textToBeReplaced + "_", Serenity.sessionVariableCalled(textToBeReplaced));
+            } while (text.contains("replace_"));
+
+        } else {
+            // Check if "text" is a session variable name. If it is, retrieve the value of that variable, else return the previous "text"
+            text = Serenity.sessionVariableCalled(text) == null ? text : Serenity.sessionVariableCalled(text);
+        }
+
+        return text;
+    }
+
+    /**
+     * @param num          Number to add - both negative and positive
+     * @param type         ngày | tháng | năm
+     * @param dateAsString Datetime as String which format is yyyyMMdd
+     * @return
+     */
+    public String addDateToyyyyMMddStringDate(int num, String type, String dateAsString) throws Exception {
+
+        SimpleDateFormat yyyyMMddFormat = new SimpleDateFormat("yyyyMMdd");
+
+        Date currentDate = yyyyMMddFormat.parse(dateAsString);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(currentDate);
+
+        String varName;
+        switch (type) {
+            case "ngày":
+                cal.add(Calendar.DATE, num);
+                varName = "DATE PLUS " + num;
+                break;
+            case "tháng":
+                cal.add(Calendar.MONTH, num);
+                varName = "MONTH PLUS " + num;
+                break;
+            case "năm":
+                cal.add(Calendar.YEAR, num);
+                varName = "YEAR PLUS " + num;
+                break;
+            default:
+                throw new Exception("Thông tin '" + type + "' không phù hợp");
+        }
+
+        if ((cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) || (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY)) {
+            cal.add(Calendar.DATE, 1);
+        }
+
+        String datePlus = yyyyMMddFormat.format(cal.getTime());
+        Serenity.setSessionVariable(varName).to(datePlus);
+
+        return datePlus;
+    }
+
+    public Map<String, String> filterDataTableAndGetFirstItemWithMaximumRecord(List<Map<String, String>> options) throws Exception {
+        boolean isPresent;
+        Pattern pattern = null;
+
+        List<Map<String, String>> table = extractItemDataTable();
+        if (options.size() == 0) {
+            if (table.size() == 0)
+                return null;
+            return table.get(0);
+        }
+
+        for (Map<String, String> row : table) {
+            boolean isAdded = true;
+            for (Map<String, String> option : options) {
+                String columnToFilter = option.get("columnName");
+                String valueToFilter = option.get("valueToFilter");
+                String operator = option.get("operator").toUpperCase();
+                String cellValue = row.get(columnToFilter).trim();
+                isAdded = isDataMatchesWithFilter(operator, cellValue, valueToFilter);
+
+                if (!isAdded) break;
+            }
+            if (isAdded) return row;
+        }
+        return null;
+    }
+
+    public boolean isLeapYear(int year) {
+        if (year % 4 != 0) {
+            return false;
+        } else if (year % 400 == 0) {
+            return true;
+        } else if (year % 100 == 0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    //    FPT_ANHDTN6
+    public String getEndDateOfMonth(String date, String format) throws ParseException {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(format);
+        Date convertedDate = dateFormat.parse(date);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(convertedDate);
+        cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+        String endDate = dateFormat.format(cal.getTime());
+        return endDate;
+    }
+
+    public String getDateTimeMinus(String date, String format, int days) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat(format);
+        // DataSwiftTest.date k ảnh hưởng
+        setDate(formatter.parse(date));
+        // convert to string
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(formatter.parse(date));
+        cal.add(Calendar.DATE, -days);
+        setDate(cal.getTime());
+        SimpleDateFormat dateFormatGmt = new SimpleDateFormat(format);
+        String dateMinus = dateFormatGmt.format(cal.getTime());
+
+        getDriver().close();
+        return dateMinus;
+    }
+
+    public String isWeekendAddOneWorkingDay(String date, String formatBefore, String formatAfter, String type, int change) throws ParseException {
+        SimpleDateFormat format1 = new SimpleDateFormat(formatBefore);
+        SimpleDateFormat format2 = new SimpleDateFormat(formatAfter);
+        String value = "";
+        Date dateBefore = format1.parse(date);
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(dateBefore);
+
+        switch (type) {
+            case "day":
+                cal.add(Calendar.DATE, change);
+                break;
+            case "month":
+                cal.add(Calendar.MONTH, change);
+                break;
+            case "year":
+                cal.add(Calendar.YEAR, change);
+                break;
+            default:
+                break;
+        }
+
+        if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+            cal.add(Calendar.DATE, 1);
+            value = format2.format(cal.getTime());
+            return value;
+        }
+
+        return value;
+    }
+
+    public void waitUntilElementAttributeHasValue(Target target, String attribute, String value) {
+        WebDriverWait wait = new WebDriverWait(getDriver(), 30);
+
+        wait.until((ExpectedCondition<Boolean>) driver -> {
+            WebElement el = driver.findElement(By.xpath(target.getCssOrXPathSelector()));
+            String attributeValue = el.getAttribute(attribute);
+
+            return attributeValue.equals(value);
+        });
+    }
+
+    //FPT_TramNBB
+    public String getCurrentDateTimeT24Plus2years(String format) throws ParseException {
+        searchCommandLineForm("DATES S VN0010001");
+        // open date t24
+        InputToCommandT24.switchToChildWindowsByTitle("DATES");
+        //
+        theActorInTheSpotlight().attemptsTo(
+                WaitUntil.the(T24DATE.TODAY_TIME, isVisible()));
+        String currentDate = getDriver().findElement(By.xpath(T24DATE.TODAY_TIME.getCssOrXPathSelector())).getText();
+        //conver String to date
+        SimpleDateFormat formatter = new SimpleDateFormat("dd MMM yyyy");
+        // DataSwiftTest.date k ảnh hưởng
+        ActionCommon.setDate(formatter.parse(currentDate));
+        // convert to string
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(formatter.parse(currentDate));
+        cal.add(Calendar.YEAR, 2);
+
+        if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
+            cal.add(Calendar.DAY_OF_WEEK, 2);
+        }
+        if (cal.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+            cal.add(Calendar.DAY_OF_WEEK, 1);
+        }
+        ActionCommon.setDate(cal.getTime());
+        SimpleDateFormat dateFormatGmt = new SimpleDateFormat(format);
+        String datePlus = dateFormatGmt.format(cal.getTime());
+        Serenity.setSessionVariable("YEAR PLUS 2").to(datePlus);
+        getDriver().close();
+        return datePlus;
+    }
+
+    public List<Map<String, String>> filterDataTableWithNumber(List<Map<String, String>> options, int numberLD) throws Exception {
+        List<Map<String, String>> filteredTable = new ArrayList<>();
+
+        boolean isPresent = false;
+        int count = 0;
+        int dem = 0;
+        do {
+            // Extract web data table
+            List<Map<String, String>> table = extractDataTable();
+
+            // In case the size of "options" is 0, return the the previous extracted data table
+            if (options.size() == 0) return table;
+
+            if (table.size() == 0) continue;
+
+            // Filter the previous extracted data table based on options which are passed as arguments of this method
+            for (Map<String, String> row : table) {
+                boolean isAdded = true;
+
+                for (Map<String, String> option : options) {
+                    String columnToFilter = option.get("columnName");
+                    String valueToFilter = option.get("valueToFilter");
+                    String operator = option.get("operator").toUpperCase();
+                    String cellValue = row.get(columnToFilter).trim();
+
+                    isAdded = isDataMatchesWithFilter(operator, cellValue, valueToFilter);
+
+                    if (!isAdded)
+                        break;
+                }
+
+                if (isAdded) {
+                    filteredTable.add(row);
+                    count++;
+                }
+
+            }
+
+            isPresent = HomePageT24Form.NEXT_PAGE.resolveFor(theActorInTheSpotlight()).isPresent();
+            if (isPresent) clickElement(HomePageT24Form.NEXT_PAGE);
+            dem++;
+
+        } while (isPresent && (count < 10 && dem < numberLD));
+
+
+        return filteredTable;
+    }
+
+    public List<Map<String, String>> retrieveListOfRowsInTheFirstPage(List<Map<String, String>> options) throws Exception {
+        List<Map<String, String>> filteredTable = new ArrayList<>();
+
+        List<Map<String, String>> table = extractDataTable();
+
+        // Filter the previous extracted data table based on options which are passed as arguments of this method
+        for (Map<String, String> row : table) {
+            boolean isAdded = true;
+
+            for (Map<String, String> option : options) {
+                String columnToFilter = option.get("columnName");
+                String valueToFilter = option.get("valueToFilter");
+                String operator = option.get("operator").toUpperCase();
+                String cellValue = row.get(columnToFilter);
+
+                if (cellValue == null)
+                    throw new Exception("Data của cột '" + columnToFilter + "' đang trả về NULL. Check lại");
+
+                isAdded = isDataMatchesWithFilter(operator, cellValue, valueToFilter);
+
+                if (!isAdded)
+                    break;
+            }
+
+            if (isAdded)
+                filteredTable.add(row);
+        }
+
+        return filteredTable;
+    }
+
+    public static String generateRandomMonth() {
+        String[] partenString = {"01", "02", "03", "04", "05", "04", "07", "08", "09", "10", "11", "12"};
+        Random generator = null;
+        int index = 0;
+        try {
+            generator = SecureRandom.getInstanceStrong();
+            if (partenString.length > 0) {
+                int max = partenString.length - 1;
+                int min = 0;
+                index = generator.nextInt(max - min + 1) + min;
+            } else {
+                try {
+                    throw new Exception("không tìm được giá trị trong drop list");
+                } catch (Exception e) {
+
+                }
+            }
+        } catch (NoSuchAlgorithmException e) {
+        }
+        return partenString[index];
+    }
+}

@@ -1,0 +1,259 @@
+FPT_AutoTestT24
+\\10.63.90.150\Nâng cấp T24\nâng cấp T24 update
+
+@CHUNG
+
+Test case manual Truy vấn T24_DungNTT14
+DATA.CAPTURE
+Uaer interface t24,vn
+========================
+taoj folder feature
+test-suite -> taoj folder suite
+mb->auto.T24->folder StepDefinitions
+cucumber -> user-interface-t24vn _> compoment
+MB.ACCOUNT.VIP
+================
+md deal
+mb md hold
+mb dangky nhacno
+goi.phi.khcn.mb (TC6, 7)
+mb credit contract ^[1-9]\d*\.[0-9]{2}\.[0-9]{3}.[0-9]{3}.TD$
+ENQUIRY
+upload file
+mb.account.vip
+
+=================
+$MA.CUSTOMER.ID
+session-DEBIT.ACCT.NO
+session-CREDIT.ACCT.NO
+
+
+#Verify trường Target Company có giá trị là VN0010001 -> Kiểm tra vs 1 trường gen ra giá trị
+#Kiểm tra các trường tự gen từ hệ thống => gen not null phan input
+# Chọn data bất kỳ trong bảng -> click 1 item trong bảng
+# Lấy dữ liệu theo label
+#Lấy dữ liệu các trường input
+#Check không hiển thị bản ghi với {string} => khong hien thị ban nghi
+#    And Lấy giá trị các trường của EB Free Message
+
+# Lấy data cột "1" bảng cùng header không điều kiện => bảng sameHeader
+# Lấy data cột {string} không điều kiện với key là {string} => khác tên trường
+Lấy dữ liệu random với cột "ID" không điều kiện với key là "IDKH"
+# Lấy data nhiều cột trong table
+
+# Click droplist cạnh transection id với field "tenField"
+#Click tap lẻ "nameTab"
+#Xử lý dữ liệu date dạng namthangngaygiophut với keySection "Date and Time.1" ////26 MAY 21 18:18 -> 2105261818
+#Format dữ liệu date "Key" dạng "yyyyMMdd" -> date + co code
+#Format date {string} dạng {string} -> date
+# Lấy dữ liệu trường {string} gán vào param {string} -> co code
+# Lưu lại giá trị "Maturity Date" của tab "tab3"
+Lưu dữ liệu theo label
+
+# Enter value transectionID với value section key la "key" -> nhap + enter key
+# Nhập transectionID với value section key la "key" -> nhap
+# Nhập transaction_Id for create record là "THAMTT.01" -> nhap+enter text
+Nhập transaction_Id với id là "" => nhap text
+
+# Search command line theo yêu cầu với key là "key"
+# Chuyển tới chi nhánh theo key là "key"
+# Click "key" bất kì với trường "namefield"
+#Check thông tin hiển thị => các trường lable not null
+
+#Check hiển thị lable theo key
+#Check hiển thị input theo key
+Check hiển thị theo key
+
+Chuyển key "ID ban ghi" thành key "IdMD"
+Tăng_giảm date {key} lên {soNgay} ngày
+Trường MD.TERM với key "Term" cso dữ liệu "<term>" => check term
+Click duyệt,xóa {string}
+
+ And Lấy thông tin record bất kì trong bảng
+      | Company |
+And Lấy thông tin record bất kì trong bảng lưu với tên session chỉ định
+      | label    | sessionKey   |
+      | ID       | LD.ID        |
+Lấy thông tin bản ghi bất kì trong bảng lưu với tên session chỉ định
+    And Lấy khách hàng với tài khoản 1 có loại tiền là VND và status  s
+
+	  
+Chọn cột "0" MD bất kỳ trong bảng => radom trong bảng same header
+
+ And Lấy date hiện tại của hệ thống plus 1 ngày
+    And Add thêm 1 "năm" dựa vào trường "systemTime" của record có sẵn
+	
+	
+	Tìm kiếm theo keyword dựa trên thông tin record
+
+Nhập dữ liệu vào form input của bản ghi
+
+Lấy thông tin các field từ form data
+ Lấy dữ liệu ô select
+ 
+  Check message không hiển thị khi input ID
+	
+##########
+
+
+getReduceDate: giam ngayf key trong search
+getPlusDate: tang ngayf key trong search
+
+CHECK_ID_ROUTINE-> check chuyen chi nhanh
+
+Check message: {},hiển thị: nhiều lỗi
+Check message display: "<message>" => message
+Check message: {},hiển thị  => errorbox
+#Màn hình kết quả query hiển thị data hoặc no data message ""
+
+
+
+clickDroplistNextTransectionId
+Click droplist cạnh transection id với field
+
+$ git checkout origin/FPT_AutoTestT24 "path/to/file"
+
+fptautotest4
+ABCdef019
+src/test/java/mb/auto/t24/mb_credit_contract/ThongLuongContractStepsDefinitions.java
+
+List<Map> -> List<String> ids -> setSessionVariable("listOfIds", String.join(",", ids)))
+
+for (String id : sessionVariableCalled("listOfIds").toString().split(",")){
+		if (input_TransactionId.isPresent()) {
+			click.RETURN_TO_APPLICATION
+		} else {
+			return id
+			break;
+		}
+	}
+
+
+
+https://regexr.com/
+00367.16.301.52409.TD 00367.19.301.52409.TD 00367.21.001.52409.TD
+\.21.001.
+
+Serenity.setSessionVariable("Account customer").to(actionCommon.getAttributeElement(FundsTransferComponent.FT_TEXT_XPATH, "value"));
+Serenity.recordReportData().withTitle("Account customer").andContents(Serenity.sessionVariableCalled("Account customer"));
+
+ExpandMulti_tab1_ HINH THUC NHAC NO.1
+
+Nhập dữ liệu MD_DEAL Issue of Generic Gurantee - > charge id and validate date
+ Nhap ban ghi- > charge id
+ enterValueIntoField() -> input and enter
+ Click search contract ->
+ Nhap ID va find _> nhap ID va find tren o popup
+ Check Hien thi thong bao "<message>" -> check hien thij thong bao
+  Tìm kiếm theo account keyword -> timm kiem the select
+  Truy cập đến Limits_Create Unsecured Limit -> go to limit unsecurety
+  filterDataTableAndGetFirstItem-> bảng 
+  get account customer-> get id tu bang
+  finterDataSameHeader
+  Tạo bản ghi thành công _ Commit
+  And Click New Deal -> để tạo mới bản ghi
+  56.21.001.1001400.TD	
+  LẤY CUSTOMER Ở TRUY VẤN KHÔNG CẦN NHẬP ĐẦU VÀO
+  Nhập transaction_Id  với id đã lấy được 
+  
+     filterOptions.add(new HashMap<String, String >() {{
+            put("index", "5");
+            put("operator", "NOT_EQUAL");
+            put("valueToFilter", "");
+        }});
+		
+	
+
+
+
+
+
+  MD2024226027
+    Serenity.setSessionVariable("charge amount with delivery").to(actionCommon.getTextOf(HomePageT24Form.DATE_AMOUNT));
+        Serenity.recordReportData().withTitle("charge amount with delivery").andContents(Serenity.sessionVariableCalled("charge amount with delivery"));
+
+  
+  And Click the New Deal
+  
+   And Chuyển sang tạo bản ghi tại Issue of Generic Guarantee
+    And Vào menu Issue of Generic Guarantee
+	Serenity.recordReportData().withTitle("Message hiển thị").andContents(messageOrrides);
+ 
+ CBS_CD_CHECK_BLOCK
+ 
+ actionCommon.clickViewAContract();
+ 
+ theActorInTheSpotlight().attemptsTo(
+                WaitUntil.the(FundsTransferComponent.BaoCoToanHeThong.SWIFT_ID_OPTIONS, WebElementStateMatchers.isVisible()).forNoMoreThan(60).seconds(),
+                Click.on(FundsTransferComponent.BaoCoToanHeThong.SWIFT_ID_OPTIONS)
+        );
+        Select options = new Select(getDriver().findElement(By.xpath(FundsTransferComponent.BaoCoToanHeThong.SWIFT_ID_OPTIONS.getCssOrXPathSelector())));
+        options.selectByVisibleText(option);
+		
+		
+		(//ul[@style='display: block;'])[last()]/li[@class='clsHasKids']//span[contains(text(),'Collateral')]
+		
+		
+		
+		========================change date==================
+		
+		changeDataYear -> change day
+		
+		 And Vào Limits
+    And Vào Limit Menu
+    And Vào Create Unsecured Limit
+    And Chuyển sang title "LIMIT"
+    And  Nhập id vừa tìm
+    And Trở về màn hình hội sở T24
+    And Get data từ file excel "md_deal/thong_luong.xlsx" sheet version <sheetName2> mã testcase <maTC2>
+    And Get data deal
+    And Chuyển sang title "LIMIT"
+    And Nhập dữ liệu create unsecured limit
+    And Click commit the deal
+    Then Tạo bản ghi thành công
+		
+		 @And("Get data deal")
+    public void getDataDeal() {
+        try {
+            getCurrentDateTimeT24Plus("yyyyMMdd");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        for (int index = 0; index < valueFields.size(); index++) {
+            if (valueFields.get(index).contains("year-")) {
+                System.out.println(valueFields.get(index).contains("year-"));
+                System.out.println(Serenity.sessionVariableCalled("YEAR PLUS").toString());
+                valueFields.set(index, Serenity.sessionVariableCalled("YEAR PLUS").toString());
+            }
+        }
+    }
+	=================Search========
+	And Tìm kiếm theo account keyword
+      | searchKey   | operator | value              |
+      | APPLICATION |          | MB.UYQUYEN.MAT.STK |
+      | PARAM.1     |          | MD                 |
+	
+	==============================
+	 @Then("Delete bảng kê đã tạo trên version lẻ")
+    public void delBangkeInVersionCol() {
+        actionCommon.typeText(HomePageT24Form.TRANSACTION_ID, Serenity.sessionVariableCalled(keyIdBangke));
+        actionCommon.clickPerformAnActionOnTheContract();
+        getDriver().findElement(By.xpath(HomePageT24Form.DELETES_A_DEAL.getCssOrXPathSelector())).click();
+        actionCommon.pause(1000);
+        getDriver().switchTo().alert().accept();
+    }
+	 @Then("Delete bảng kê:{}")
+    public void delBangkeInVersionColWithDefaultTransactionID(String text) {
+        actionCommon.typeText(HomePageT24Form.TRANSACTION_ID, text);
+        actionCommon.clickPerformAnActionOnTheContract();
+        getDriver().findElement(By.xpath(HomePageT24Form.DELETES_A_DEAL.getCssOrXPathSelector())).click();
+        actionCommon.pause(1000);
+        getDriver().switchTo().alert().accept();
+    }
+	@Then("Duyệt bảng kê đối ứng khác chi nhánh vừa được tạo tại chi nhánh {}")
+	@Then("Duyệt limit đã tạo trên version lẻ")
+	 @When("Duyệt bản ghi limit đã tạo")
+	 @Given("'{word}' đăng nhập thành công vào hệ thống và truy cập vào trang Phê duyệt")
+	  @Then("Approver phê duyệt thành công")
+	   @Then("Phê duyệt thành công")
+	   Click Accept Overrides
